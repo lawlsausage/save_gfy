@@ -1,0 +1,15 @@
+{
+    "defaultUrl": "https://www.reddit.com/r/funny/comments/aarrbi/beat_boxing_cat/",
+    "gfycat": {
+        "hosts": [
+            "gfycat"
+        ]
+    },
+    "reddit": {
+        "hosts": [
+            "reddit",
+            "v.redd.it"
+        ]
+    },
+    "logLevel": "debug"
+}
