@@ -40,6 +40,60 @@ Change the directory to the project directory.
 
 Enter `flutter run -t lib/main_dev.dart --flavor dev`.
 
+#### Using the app
+
+##### Android
+
+The save_gfy app will respond to URL links with the following hosts tapped on Android:
+
+* gfycat
+* v.redd.it
+
+You may also share URLs with the following hosts through the Android Share Dialog from another app:
+
+* gfycat
+* reddit
+* v.redd.it
+
+##### iOS
+
+TBD
+
+### Debugging in Visual Studio Code
+
+If you are using Visual Studio Code, the following is an example `.vscode/launch.json` file.
+
+```json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flutter - Dev",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_dev.dart",
+            "args": [
+                "--flavor",
+                "dev"
+            ]
+        },
+        {
+            "name": "Flutter - Prod",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_prod.dart",
+            "args": [
+                "--flavor",
+                "prod"
+            ]
+        }
+    ]
+}
+```
+
 ## App Configuration
 
 App configuration is contained in the `dev.json` and `prod.json` files located in the `assets/config` directory.
