@@ -11,7 +11,6 @@ import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/values/app_config.dart';
 import 'package:save_gfy/values/routes.dart' as SaveGfyRoutes;
 
-
 const appTitle = 'Save GFY';
 
 const channelName = 'memeshart.com/save_gfy';

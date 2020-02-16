@@ -13,8 +13,7 @@ class GfycatService implements SourceService {
 
   final WebViewController webViewController;
 
-  static const String _javascript =
-      'JSON.stringify(___INITIAL_STATE__.cache.gifs)';
+  static const String _javascript = '___INITIAL_STATE__.cache.gifs';
 
   static const Map<DownloadType, String> _extensions = {
     DownloadType.mp4: '.mp4',
