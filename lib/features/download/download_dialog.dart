@@ -39,33 +39,11 @@ class DownloadDialogState extends State<DownloadDialog>
   StreamSubscription _subscription;
   DownloadBloc _downloadBloc = DownloadBloc();
 
-  void _handleDownloadStarted(StreamSubscription subscription) {
-    _subscription = subscription;
-  }
-
-  void _handleCancelPressed(BuildContext context) {
-    _subscription.cancel();
-    Navigator.of(context).pop();
-  }
-
   @override
   void initState() {
     super.initState();
 
-    try {
-      widget.sourceService
-          ?.download(widget.downloadsPath, widget.downloadInfo,
-              widget.sourceMetadata, _downloadBloc.update,
-              onDownloadStarted: _handleDownloadStarted)
-          ?.then((_) {
-        Timer(Duration(milliseconds: 1000), () {
-          Navigator.of(context).pop();
-        });
-        Timer(Duration(milliseconds: 1500), () {
-          MyApp.platform.invokeMethod('openDirectory');
-        });
-      });
-    } catch (err) {}
+    _downloadFile();
   }
 
   @override
@@ -80,7 +58,8 @@ class DownloadDialogState extends State<DownloadDialog>
             builder:
                 (context, AsyncSnapshot<DownloadProgressMetadata> snapshot) {
               return Text(
-                  '${snapshot.data?.received ?? 0} out of ${snapshot.data?.total ?? 0} bytes');
+                '${snapshot.data?.received ?? 0} out of ${snapshot.data?.total ?? 0} bytes',
+              );
             },
           ),
           StreamBuilder(
@@ -101,6 +80,32 @@ class DownloadDialogState extends State<DownloadDialog>
         ),
       ],
     );
+  }
+
+  void _handleDownloadStarted(StreamSubscription subscription) {
+    _subscription = subscription;
+  }
+
+  void _handleCancelPressed(BuildContext context) {
+    _subscription.cancel();
+    Navigator.of(context).pop();
+  }
+
+  Future _downloadFile() async {
+    try {
+      await widget.sourceService?.download(widget.downloadsPath,
+          widget.downloadInfo, widget.sourceMetadata, _downloadBloc.update,
+          onDownloadStarted: _handleDownloadStarted);
+
+      Timer(Duration(milliseconds: 1000), () {
+        Navigator.of(context).pop();
+      });
+      Timer(Duration(milliseconds: 1500), () {
+        MyApp.platform.invokeMethod('openDirectory');
+      });
+    } catch (err) {
+      loggerService.d('Download error occurred.', err);
+    }
   }
 
   @override
