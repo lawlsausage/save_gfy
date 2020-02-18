@@ -6,7 +6,7 @@ class SharedUrlBloc {
   final sharedUrlStreamController = BehaviorSubject<String>();
   Stream<String> get getSharedUrl => sharedUrlStreamController.stream;
 
-  void add(event) {
+  void add(String event) {
     sharedUrlStreamController.add(event);
   }
 
