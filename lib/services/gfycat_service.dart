@@ -18,7 +18,6 @@ class GfycatService implements SourceService {
   static const Map<DownloadType, String> _extensions = {
     DownloadType.mp4: '.mp4',
     DownloadType.webm: '.webm',
-    DownloadType.mp4Mobile: '.mp4',
   };
 
   final List<String> _hosts = MyApp.configService.getAppConfig().gfycat.hosts;
@@ -95,15 +94,18 @@ class GfycatService implements SourceService {
       DownloadInfo(
           type: DownloadType.mp4,
           name: _parseDownloadName(mp4Url),
-          url: mp4Url),
+          url: mp4Url,
+          quality: 'High'),
       DownloadInfo(
           type: DownloadType.webm,
           name: _parseDownloadName(webmUrl),
-          url: webmUrl),
+          url: webmUrl,
+          quality: 'WEBM'),
       DownloadInfo(
-          type: DownloadType.mp4Mobile,
+          type: DownloadType.mp4,
           name: _parseDownloadName(mobileUrl),
-          url: mobileUrl),
+          url: mobileUrl,
+          quality: 'Mobile'),
     ];
   }
 

@@ -8,9 +8,6 @@ class DownloadOptions extends StatelessWidget {
     Key key,
     this.onTapDownloadOption,
     this.downloadName,
-    this.mp4Url,
-    this.webmUrl,
-    this.mobileUrl,
     this.downloads,
   }) : super(key: key);
 
@@ -18,25 +15,17 @@ class DownloadOptions extends StatelessWidget {
 
   final String downloadName;
 
-  final String mp4Url;
-
-  final String webmUrl;
-
-  final String mobileUrl;
-  
   final List<DownloadInfo> downloads;
 
-  static const Map<DownloadType, String> _downloadNames = {
-    DownloadType.mp4: '.mp4',
-    DownloadType.webm: '.webm',
-    DownloadType.mp4Mobile: 'mobile .mp4',
-  };
-
   Iterable<ListTile> _buildOptions() {
-    return downloads.map((download) => ListTile(
-          title: Text(_downloadNames[download.type]),
-          onTap: () => this.onTapDownloadOption(download),
-        ));
+    return downloads.map((download) {
+      final quality =
+          ((download.quality?.length ?? 0) > 0) ? '${download.quality} ' : '';
+      return ListTile(
+        title: Text('$quality${download.type}'),
+        onTap: () => this.onTapDownloadOption(download),
+      );
+    });
   }
 
   @override
