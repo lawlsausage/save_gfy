@@ -1,6 +1,5 @@
-import 'dart:convert';
-
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:save_gfy/services/file_service.dart';
+import 'package:save_gfy/values/app_site_config.dart';
 import 'package:save_gfy/values/config.dart';
 
 class AppConfig implements Config {
@@ -48,32 +47,10 @@ class AppConfig implements Config {
 
     Map<String, dynamic> mergedJson = {};
     for (final filename in configFilenames) {
-      final configJson = await _loadConfigFileToString(filename);
+      final configJson =
+          await FileService.loadJsonFile('assets/config/$filename');
       mergedJson = {...mergedJson, ...configJson};
     }
     return fromJson(mergedJson);
   }
-
-  static Future<Map<String, dynamic>> _loadConfigFileToString(
-      String filename) async {
-    Map<String, dynamic> json = {};
-    try {
-      String contents = await rootBundle.loadString('assets/config/$filename');
-      json = jsonDecode(contents);
-    } catch (err) {}
-
-    return json;
-  }
-}
-
-class AppSiteConfig {
-  AppSiteConfig({this.hosts});
-
-  static AppSiteConfig fromJson(Map<String, dynamic> json) {
-    return AppSiteConfig(
-      hosts: json != null ? json['hosts']?.cast<String>() : null,
-    );
-  }
-
-  final List<String> hosts;
 }
