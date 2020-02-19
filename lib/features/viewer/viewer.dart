@@ -7,9 +7,9 @@ import 'package:save_gfy/features/download/download_options.dart';
 import 'package:save_gfy/features/progress_indicators/self_visible_linear_progress_indicator.dart';
 import 'package:save_gfy/features/viewer/viewer_bloc.dart';
 import 'package:save_gfy/features/web_view/web_view.dart';
+import 'package:save_gfy/models/download_info.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/source_service.dart';
-import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class Viewer extends StatefulWidget {

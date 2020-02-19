@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:save_gfy/features/download/download_bloc.dart';
 import 'package:save_gfy/main.dart';
+import 'package:save_gfy/models/download_info.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/source_service.dart';
-import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/download_progress_metadata.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 

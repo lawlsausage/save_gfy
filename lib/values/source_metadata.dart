@@ -1,4 +1,4 @@
-import 'package:save_gfy/values/download_info.dart';
+import 'package:save_gfy/models/download_info.dart';
 
 class SourceMetadata {
   SourceMetadata({

@@ -3,9 +3,10 @@ import 'dart:convert';
 
 import 'package:save_gfy/features/web_view/web_view_controller.dart';
 import 'package:save_gfy/main.dart';
+import 'package:save_gfy/models/download_info.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/source_service.dart';
-import 'package:save_gfy/values/download_info.dart';
+import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class GfycatService implements SourceService {
