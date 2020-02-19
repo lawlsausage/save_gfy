@@ -65,6 +65,22 @@ main() {
         expect(result, isNot(equals(mockedUrl)));
         expect(result, startsWith('https://'));
       });
+
+      test('makeHttps does not touch http:// or https:// embedded somewhere in the [url] other than starting from index 0', () {
+        final mockDomain1 = mockString(mockInteger(10, 20));
+        final mockedUrl1 = 'http://$mockDomain1?other=https://${mockString()}';
+        final mockDomain2 = mockString(mockInteger(5, 10));
+        final mockedUrl2 = '$mockDomain2?other=http://${mockString()}';
+        final result1 = Util.makeHttps(mockedUrl1);
+        final result2 = Util.makeHttps(mockedUrl2);
+
+        expect(result1, isNot(equals(mockedUrl1)));
+        expect(result2, isNot(equals(mockedUrl2)));
+        expect(result1, startsWith('https://'));
+        expect(result2, startsWith('https://'));
+        expect(result1.indexOf('https://', 'https://'.length), greaterThan('https://'.length));
+        expect(result2.indexOf('http://', 'https://'.length), greaterThan('https://'.length));
+      });
     });
   });
 }
