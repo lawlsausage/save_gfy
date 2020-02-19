@@ -8,11 +8,11 @@ class DownloadInfo {
     this.quality,
   });
 
-  DownloadType type;
+  final DownloadType type;
 
-  String name;
+  final String name;
 
-  String url;
+  final String url;
 
-  String quality;
+  final String quality;
 }

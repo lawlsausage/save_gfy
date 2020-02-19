@@ -1,5 +1,5 @@
-import 'package:save_gfy/models/download_info.dart';
 import 'package:save_gfy/services/reddit_service.dart';
+import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/download_type.dart';
 
 class RedditVideoMetadata {

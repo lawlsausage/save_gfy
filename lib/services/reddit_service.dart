@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:save_gfy/main.dart';
-import 'package:save_gfy/models/download_info.dart';
 import 'package:save_gfy/models/reddit/dash_info.dart';
 import 'package:save_gfy/models/reddit/reddit_video_metadata.dart';
 import 'package:save_gfy/models/xml/xml_document.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/source_service.dart';
+import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 

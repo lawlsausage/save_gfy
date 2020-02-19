@@ -1,4 +1,4 @@
-import 'package:save_gfy/models/download_info.dart';
+import 'package:save_gfy/values/download_info.dart';
 
 class SourceMetadata {
   SourceMetadata({
@@ -7,9 +7,9 @@ class SourceMetadata {
     this.name,
   });
 
-  List<DownloadInfo> downloads;
+  final List<DownloadInfo> downloads;
 
-  String sourceUrl;
+  final String sourceUrl;
 
-  String name;
+  final String name;
 }

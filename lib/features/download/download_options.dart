@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:save_gfy/models/download_info.dart';
+import 'package:save_gfy/values/download_info.dart';
 
 typedef void OnTapDownloadOption(DownloadInfo downloadInfo);
 

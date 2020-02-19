@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:save_gfy/models/download_info.dart';
+import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 abstract class SourceService {
