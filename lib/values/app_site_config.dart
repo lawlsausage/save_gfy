@@ -3,7 +3,9 @@ class AppSiteConfig {
 
   static AppSiteConfig fromJson(Map<String, dynamic> json) {
     return AppSiteConfig(
-      hosts: json != null ? json['hosts']?.cast<String>() : null,
+      hosts: (json != null && json is Map<String, dynamic>)
+          ? json['hosts']?.cast<String>()
+          : null,
     );
   }
 

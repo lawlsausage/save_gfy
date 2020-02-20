@@ -37,7 +37,8 @@ class AppConfig implements Config {
 
   final String logLevel;
 
-  static Future<AppConfig> forEnvironment(String env) async {
+  static Future<AppConfig> forEnvironment(FileService fileService,
+      [String env]) async {
     env = env ?? 'dev';
 
     final configFilenames = [
@@ -47,9 +48,9 @@ class AppConfig implements Config {
 
     Map<String, dynamic> mergedJson = {};
     for (final filename in configFilenames) {
-      final configJson =
-          await FileService.loadJsonFile('assets/config/$filename');
-      mergedJson = {...mergedJson, ...configJson};
+      final configJson = (await fileService
+          .loadJsonFile('assets/config/$filename')) as Map<String, dynamic>;
+      mergedJson = {...mergedJson, ...(configJson ?? Map<String, dynamic>())};
     }
     return fromJson(mergedJson);
   }

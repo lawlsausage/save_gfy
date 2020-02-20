@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:save_gfy/services/logger_service.dart';
 
 class FileService {
-  static Future<dynamic> loadJsonFile(String filePath) async {
+  Future<dynamic> loadJsonFile(String filePath) async {
     Map<String, dynamic> json = {};
     try {
       String contents = await rootBundle.loadString(filePath);
