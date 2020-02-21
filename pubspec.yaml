@@ -26,6 +26,7 @@ dependencies:
   flutter_ffmpeg: ^0.2.10
   rxdart: ^0.23.1
   logger: ^0.8.3
+  provider: ^4.0.4
 
 dev_dependencies:
   flutter_test:
