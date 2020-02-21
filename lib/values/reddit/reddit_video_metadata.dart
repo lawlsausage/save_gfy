@@ -5,10 +5,6 @@ import 'package:save_gfy/values/download_type.dart';
 class RedditVideoMetadata {
   RedditVideoMetadata({this.dashPlaylistUrl, this.downloadInfoList});
 
-  final String dashPlaylistUrl;
-
-  final List<DownloadInfo> downloadInfoList;
-
   static RedditVideoMetadata fromJson(dynamic json) {
     final rootListings = json as List<dynamic>;
 
@@ -44,4 +40,8 @@ class RedditVideoMetadata {
       downloadInfoList: downloadInfoList,
     );
   }
+
+  final String dashPlaylistUrl;
+
+  final List<DownloadInfo> downloadInfoList;
 }
