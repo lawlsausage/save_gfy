@@ -3,7 +3,7 @@ import 'package:save_gfy/values/app_site_config.dart';
 import 'package:save_gfy/values/config.dart';
 
 class AppConfig implements Config {
-  AppConfig({
+  const AppConfig({
     this.defaultUrl,
     this.gfycat,
     this.reddit,

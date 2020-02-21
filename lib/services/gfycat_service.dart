@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:save_gfy/features/web_view/web_view_controller.dart';
-import 'package:save_gfy/main.dart';
+import 'package:save_gfy/services/config_service.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/source_service.dart';
 import 'package:save_gfy/values/download_info.dart';
@@ -10,9 +10,13 @@ import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class GfycatService implements SourceService {
-  GfycatService(this.webViewController);
+  GfycatService(this.webViewController, this.configService) {
+    _hosts = configService.appConfig.gfycat.hosts;
+  }
 
   final WebViewController webViewController;
+
+  final ConfigService configService;
 
   static const String _javascript = '___INITIAL_STATE__.cache.gifs';
 
@@ -21,7 +25,7 @@ class GfycatService implements SourceService {
     DownloadType.webm: '.webm',
   };
 
-  final List<String> _hosts = MyApp.configService.getAppConfig().gfycat.hosts;
+  List<String> _hosts;
 
   String _currentUrl;
 

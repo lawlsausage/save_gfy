@@ -27,7 +27,7 @@ class Viewer extends StatefulWidget {
 class _ViewerState extends State<Viewer> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final ViewerBloc _viewerBloc = ViewerBloc();
+  ViewerBloc _viewerBloc;
 
   void _handleViewDownloads() async {
     try {
@@ -117,6 +117,13 @@ class _ViewerState extends State<Viewer> {
       content: content != null ? content : Text(message),
     );
     return _scaffoldKey.currentState.showSnackBar(snackBar);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _viewerBloc = ViewerBloc(context: context);
   }
 
   @override

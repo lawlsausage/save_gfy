@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
-import 'package:save_gfy/main.dart';
 import 'package:save_gfy/models/xml/xml_document.dart';
+import 'package:save_gfy/services/config_service.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/source_service.dart';
@@ -15,15 +15,21 @@ import 'package:save_gfy/values/reddit/reddit_video_metadata.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class RedditService implements SourceService {
+  RedditService(this.configService) {
+    _hosts = configService.appConfig.reddit.hosts;
+  }
+
   static const String redditVideoHostUrl = 'https://v.redd.it/';
 
   static const String videoFileSuffix = '_savegfyorig';
 
   static const String audioFileSuffix = '_savegfyorig_audio';
 
+  final ConfigService configService;
+
   final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
 
-  final List<String> _hosts = MyApp.configService.getAppConfig().reddit.hosts;
+  List<String> _hosts;
 
   String _currentUrl;
 
