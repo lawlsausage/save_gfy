@@ -2,7 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
 import 'package:save_gfy/values/download_type.dart';
 
+import '../config.dart';
+
 void main() {
+  configureEnvironment();
+  
   group('DownloadType', () {
     test('DownloadType.mp4.name returns mp4 String', () {
       expect(DownloadType.mp4.name, equals('mp4'));

@@ -4,7 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
 import 'package:save_gfy/blocs/shared_url_bloc.dart';
 
+import '../config.dart';
+
 void main() {
+  configureEnvironment();
+
   group('SharedUrlBloc', () {
     test('getSharedUrl returns a Stream<String> instance', () {
       final bloc = SharedUrlBloc();

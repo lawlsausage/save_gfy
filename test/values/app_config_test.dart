@@ -6,6 +6,8 @@ import 'package:mockito/mockito.dart';
 import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/values/app_config.dart';
 
+import '../config.dart';
+
 class MockFileService extends Mock implements FileService {}
 
 Map<String, dynamic> mockConfig() {
@@ -17,6 +19,8 @@ Map<String, dynamic> mockConfig() {
 }
 
 void main() {
+  configureEnvironment();
+
   group('AppConfig', () {
     group('fromJson', () {
       test('successfully parses valid JSON', () {

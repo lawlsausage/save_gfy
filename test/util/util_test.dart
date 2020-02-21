@@ -2,7 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
 import 'package:save_gfy/util/util.dart';
 
+import '../config.dart';
+
 main() {
+  configureEnvironment();
+
   group('Util', () {
     group('remap', () {
       test('remap returns a new value within the provided range', () {
@@ -66,7 +70,9 @@ main() {
         expect(result, startsWith('https://'));
       });
 
-      test('makeHttps does not touch http:// or https:// embedded somewhere in the [url] other than starting from index 0', () {
+      test(
+          'makeHttps does not touch http:// or https:// embedded somewhere in the [url] other than starting from index 0',
+          () {
         final mockDomain1 = mockString(mockInteger(10, 20));
         final mockedUrl1 = 'http://$mockDomain1?other=https://${mockString()}';
         final mockDomain2 = mockString(mockInteger(5, 10));
@@ -78,8 +84,10 @@ main() {
         expect(result2, isNot(equals(mockedUrl2)));
         expect(result1, startsWith('https://'));
         expect(result2, startsWith('https://'));
-        expect(result1.indexOf('https://', 'https://'.length), greaterThan('https://'.length));
-        expect(result2.indexOf('http://', 'https://'.length), greaterThan('https://'.length));
+        expect(result1.indexOf('https://', 'https://'.length),
+            greaterThan('https://'.length));
+        expect(result2.indexOf('http://', 'https://'.length),
+            greaterThan('https://'.length));
       });
     });
   });

@@ -2,7 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
 import 'package:save_gfy/values/app_site_config.dart';
 
+import '../config.dart';
+
 void main() {
+  configureEnvironment();
+
   group('AppSiteConfig', () {
     group('fromJson', () {
       test('returns AppSiteConfig from valid JSON', () {

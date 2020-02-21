@@ -5,6 +5,8 @@ import 'package:save_gfy/models/xml/xml_element.dart';
 import 'package:save_gfy/models/xml/xml_name.dart';
 import 'package:save_gfy/values/reddit/dash_info.dart';
 
+import '../../config.dart';
+
 class MockXmlElement extends Mock implements XmlElement {}
 
 class MockXmlName extends Mock implements XmlName {}
@@ -37,6 +39,8 @@ MockXmlElement createMockRepresentationXmlElement({
 }
 
 void main() {
+  configureEnvironment();
+
   group('DashInfo', () {
     group('fromXml', () {
       test('successfully parses a Representation XmlElement', () {
