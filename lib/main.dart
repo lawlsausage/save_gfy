@@ -7,6 +7,7 @@ import 'package:save_gfy/blocs/shared_url_bloc.dart';
 import 'package:save_gfy/pages/home.dart';
 import 'package:save_gfy/pages/paste_url.dart';
 import 'package:save_gfy/services/config_service.dart';
+import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/values/app_config.dart';
 import 'package:save_gfy/values/routes.dart' as SaveGfyRoutes;
@@ -18,7 +19,7 @@ const channelName = 'memeshart.com/save_gfy';
 void run({String env}) async {
   WidgetsFlutterBinding.ensureInitialized();
   // load app config
-  final config = await AppConfig.forEnvironment(env);
+  final config = await AppConfig.forEnvironment(FileService(), env);
 
   final level = LoggerService.levels[config.logLevel];
 
