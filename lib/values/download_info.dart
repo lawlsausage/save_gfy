@@ -1,19 +1,18 @@
-enum DownloadType {
-  mp4,
-  webm,
-  mp4Mobile,
-}
+import 'package:save_gfy/values/download_type.dart';
 
 class DownloadInfo {
   DownloadInfo({
     this.type,
     this.name,
     this.url,
+    this.quality,
   });
 
-  DownloadType type;
+  final DownloadType type;
 
-  String name;
+  final String name;
 
-  String url;
+  final String url;
+
+  final String quality;
 }

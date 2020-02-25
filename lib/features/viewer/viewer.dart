@@ -34,8 +34,17 @@ class _ViewerState extends State<Viewer> {
       final timeoutDuration = Duration(seconds: 3);
       final loadingSnackbarController = _showSnackBar(
         content: Row(children: [
-          CircularProgressIndicator(),
-          Text('Loading...'),
+          SizedBox(
+            height: 15.0,
+            width: 15.0,
+            child: CircularProgressIndicator(
+              strokeWidth: 1.5,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.only(left: kTabLabelPadding.left),
+            child: Text('Loading...'),
+          ),
         ]),
         duration: timeoutDuration,
       );

@@ -6,6 +6,7 @@ import 'package:save_gfy/main.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/source_service.dart';
 import 'package:save_gfy/values/download_info.dart';
+import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class GfycatService implements SourceService {
@@ -13,13 +14,11 @@ class GfycatService implements SourceService {
 
   final WebViewController webViewController;
 
-  static const String _javascript =
-      'JSON.stringify(___INITIAL_STATE__.cache.gifs)';
+  static const String _javascript = '___INITIAL_STATE__.cache.gifs';
 
   static const Map<DownloadType, String> _extensions = {
     DownloadType.mp4: '.mp4',
     DownloadType.webm: '.webm',
-    DownloadType.mp4Mobile: '.mp4',
   };
 
   final List<String> _hosts = MyApp.configService.getAppConfig().gfycat.hosts;
@@ -96,15 +95,18 @@ class GfycatService implements SourceService {
       DownloadInfo(
           type: DownloadType.mp4,
           name: _parseDownloadName(mp4Url),
-          url: mp4Url),
+          url: mp4Url,
+          quality: 'High'),
       DownloadInfo(
           type: DownloadType.webm,
           name: _parseDownloadName(webmUrl),
-          url: webmUrl),
+          url: webmUrl,
+          quality: 'WEBM'),
       DownloadInfo(
-          type: DownloadType.mp4Mobile,
+          type: DownloadType.mp4,
           name: _parseDownloadName(mobileUrl),
-          url: mobileUrl),
+          url: mobileUrl,
+          quality: 'Mobile'),
     ];
   }
 

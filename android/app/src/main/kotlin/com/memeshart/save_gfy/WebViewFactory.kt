@@ -8,7 +8,7 @@ import io.flutter.plugin.platform.PlatformViewFactory
 
 class WebViewFactory(private val messenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, id: Int, o: Any?): PlatformView {
-        return MyWebView(context, messenger, id)
+        return FlutterWebView(context, messenger, id)
     }
 
 }

@@ -13,9 +13,9 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 
 
-class MyWebView internal constructor(context: Context, messenger: BinaryMessenger, id: Int) : PlatformView, MethodChannel.MethodCallHandler, WebViewClient() {
+class FlutterWebView internal constructor(context: Context, messenger: BinaryMessenger, id: Int) : PlatformView, MethodChannel.MethodCallHandler, WebViewClient() {
     private val context: Context = context;
-    private val webView: WebView = WebView(context)
+    private val webView: WebView = CustomNativeWebView(context)
     private val methodChannel: MethodChannel
     private var loadingFinished: Boolean
     private var redirect: Boolean
@@ -60,6 +60,7 @@ class MyWebView internal constructor(context: Context, messenger: BinaryMessenge
         Log.d("save_gfy", "MyWebView disposed")
         webView.clearCache(true)
         webView.clearHistory()
+        webView.destroy()
 
         clearCookies(context)
     }
@@ -67,7 +68,7 @@ class MyWebView internal constructor(context: Context, messenger: BinaryMessenge
     override fun onMethodCall(methodCall: MethodCall, result: MethodChannel.Result) {
         when (methodCall.method) {
             "loadUrl" -> loadUrl(methodCall, result)
-            "execJavascript" -> execJavascript(methodCall, result)
+            "execJavascript" -> evaluateJavaScript(methodCall, result)
             else -> result.notImplemented()
         }
     }
@@ -101,7 +102,6 @@ class MyWebView internal constructor(context: Context, messenger: BinaryMessenge
     }
 
     @JavascriptInterface
-    @Suppress("unused")
     fun onData(value: String) {
         val mainHandler = Handler(context.mainLooper)
         val runnable = Runnable {
@@ -118,10 +118,27 @@ class MyWebView internal constructor(context: Context, messenger: BinaryMessenge
         result?.success(null)
     }
 
+    /**
+     * Executes JavaScript with the legacy implementation pre-KitKat.
+     */
     private fun execJavascript(methodCall: MethodCall?, result: MethodChannel.Result?) {
-        val script = methodCall?.arguments as String
+        val script = "JSON.stringify(${(methodCall?.arguments ?: "") as String})"
         webView.loadUrl("javascript:try { android.onData($script); } catch (err) { android.onData(JSON.stringify({})); }")
         result?.success(null)
+    }
+
+    private fun evaluateJavaScript(methodCall: MethodCall?, result: MethodChannel.Result?) {
+        when {
+            (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) -> execJavascript(methodCall, result)
+            else -> {
+                val script = (methodCall?.arguments ?: "") as String
+                fun handleResult() : ValueCallback<String> {
+                    return ValueCallback { v -> onData(v) }
+                }
+                webView.evaluateJavascript(script, handleResult())
+                result?.success(null)
+            }
+        }
     }
 
     private fun notifyProgressChange(newProgress: Int) {

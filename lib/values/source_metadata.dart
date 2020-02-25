@@ -7,9 +7,9 @@ class SourceMetadata {
     this.name,
   });
 
-  List<DownloadInfo> downloads;
+  final List<DownloadInfo> downloads;
 
-  String sourceUrl;
+  final String sourceUrl;
 
-  String name;
+  final String name;
 }

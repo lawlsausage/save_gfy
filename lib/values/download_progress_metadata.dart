@@ -1,7 +1,7 @@
 class DownloadProgressMetadata {
   DownloadProgressMetadata({this.received, this.total});
 
-  int received;
+  final int received;
 
-  int total;
+  final int total;
 }
