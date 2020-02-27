@@ -8,7 +8,9 @@ import 'package:save_gfy/blocs/shared_url_bloc.dart';
 import 'package:save_gfy/pages/home.dart';
 import 'package:save_gfy/pages/paste_url.dart';
 import 'package:save_gfy/services/config_service.dart';
+import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/file_service.dart';
+import 'package:save_gfy/services/http_client_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/values/app_config.dart';
 import 'package:save_gfy/values/routes.dart' as SaveGfyRoutes;
@@ -19,8 +21,15 @@ const channelName = 'memeshart.com/save_gfy';
 
 void run({String env}) async {
   WidgetsFlutterBinding.ensureInitialized();
+  final fileService = FileService();
+
   // load app config
-  final config = await AppConfig.forEnvironment(FileService(), env);
+  final config = await AppConfig.forEnvironment(fileService, env);
+
+  final httpClientService = HttpClientService();
+
+  final downloadService =
+      DownloadService(httpClientService.httpClient, fileService);
 
   final level = LoggerService.levels[config.logLevel];
 
@@ -28,11 +37,17 @@ void run({String env}) async {
 
   runApp(MyApp(
     appConfig: config,
+    httpClientService: httpClientService,
+    downloadService: downloadService,
   ));
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({this.appConfig}) {
+  MyApp({
+    this.appConfig,
+    this.httpClientService,
+    this.downloadService,
+  }) {
     Timer(Duration(milliseconds: 1000), () {
       platform.setMethodCallHandler(handleMethodCall);
       platform.invokeMethod('ready');
@@ -40,6 +55,10 @@ class MyApp extends StatelessWidget {
   }
 
   final AppConfig appConfig;
+
+  final HttpClientService httpClientService;
+
+  final DownloadService downloadService;
 
   static const platform = const MethodChannel(channelName);
 
@@ -61,22 +80,22 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider(
-          create: (context) => ConfigService()..appConfig = appConfig,
+          create: (context) {
+            return ConfigService()..appConfig = appConfig;
+          },
         ),
+        Provider(
+          create: (_) => httpClientService,
+          dispose: (_, HttpClientService service) => service.dispose(),
+        ),
+        Provider(create: (_) => FileService()),
+        Provider(create: (_) => downloadService),
       ],
       child: MaterialApp(
         title: appTitle,
         initialRoute: SaveGfyRoutes.Route.home.path,
         theme: ThemeData(
           // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
           primarySwatch: Colors.blue,
         ),
         routes: {

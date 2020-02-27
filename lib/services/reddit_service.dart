@@ -15,7 +15,7 @@ import 'package:save_gfy/values/reddit/reddit_video_metadata.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class RedditService implements SourceService {
-  RedditService(this.configService) {
+  RedditService(this.configService, this.downloadService) {
     _hosts = configService.appConfig.reddit.hosts;
   }
 
@@ -26,6 +26,8 @@ class RedditService implements SourceService {
   static const String audioFileSuffix = '_savegfyorig_audio';
 
   final ConfigService configService;
+
+  final DownloadService downloadService;
 
   final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
 
@@ -120,7 +122,7 @@ class RedditService implements SourceService {
   }) async {
     final filePath = '$downloadsPath/${downloadInfo.name}';
     try {
-      await DownloadService.downloadFile(
+      await downloadService.downloadFile(
         url: url,
         filePath: filePath,
         onDownloadProgress: onDownloadProgress,
@@ -144,7 +146,7 @@ class RedditService implements SourceService {
       final name =
           downloadInfo.name.replaceAll(videoFileSuffix, audioFileSuffix);
       final filePath = '$downloadsPath/$name';
-      await DownloadService.downloadFile(
+      await downloadService.downloadFile(
         url: url,
         filePath: filePath,
         onDownloadProgress: onDownloadProgress,
@@ -159,6 +161,7 @@ class RedditService implements SourceService {
 
   Future _mergeFiles(List<String> filePaths) async {
     final outputFilePath = filePaths[0].replaceAll(videoFileSuffix, '');
+    // TODO: delete the file (if exists) before attempting a merge
     if ((filePaths?.length ?? 0) > 1) {
       final returnCode = await _flutterFFmpeg.execute(
           '-i ${filePaths[0]} -i ${filePaths[1]} -c:v copy -c:a aac -strict experimental $outputFilePath');
@@ -178,7 +181,7 @@ class RedditService implements SourceService {
     }
 
     final formattedUrl = _formatRedditVideoMetadataUrl(url);
-    final jsonString = await DownloadService.getData(formattedUrl);
+    final jsonString = await downloadService.getData(formattedUrl);
     final json = jsonDecode(jsonString);
     final metadata = RedditVideoMetadata.fromJson(json);
     var downloadInfoList = metadata.downloadInfoList;
@@ -223,7 +226,7 @@ class RedditService implements SourceService {
     final resolvedUrl = !lowerCaseUrl.contains('dashplaylist.mpd')
         ? url.substring(0, lowerCaseUrl.indexOf('dash'))
         : url;
-    final xmlString = await DownloadService.getData(resolvedUrl);
+    final xmlString = await downloadService.getData(resolvedUrl);
     final representationXmlElements = XmlDocument.fromString(xmlString)
         ?.findElements('MPD')
         ?.first

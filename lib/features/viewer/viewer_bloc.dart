@@ -7,6 +7,7 @@ import 'package:save_gfy/blocs/shared_url_bloc.dart';
 import 'package:save_gfy/features/web_view/web_view_bloc.dart';
 import 'package:save_gfy/main.dart';
 import 'package:save_gfy/services/config_service.dart';
+import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/gfycat_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/reddit_service.dart';
@@ -24,7 +25,8 @@ enum ViewerStatus {
 class ViewerBloc {
   ViewerBloc({this.context}) {
     configService = Provider.of<ConfigService>(context);
-    _redditService = RedditService(configService);
+    downloadService = Provider.of<DownloadService>(context);
+    _redditService = RedditService(configService, downloadService);
 
     isVisibleController.add(false);
     // Initializes the current URL with a default in case the no URL has been shared.
@@ -53,6 +55,8 @@ class ViewerBloc {
   final Map<String, SourceService> _sourceServices = {};
 
   ConfigService configService;
+
+  DownloadService downloadService;
 
   WebViewBloc get webViewBloc => _webViewBloc;
   WebViewBloc _webViewBloc;
@@ -90,7 +94,7 @@ class ViewerBloc {
     _webViewBloc.getWebViewController.listen((controller) {
       controller.pageFinishedHandler = _handlePageFinished;
       controller.pageRedirectedHandler = _handlePageRedirected;
-      _gfycatService = GfycatService(controller, configService);
+      _gfycatService = GfycatService(controller, configService, downloadService);
       _sourceServices[_gfycatService.name] = _gfycatService;
 
       // getCurrentUrl.listen((url) => controller.loadUrl(url));

@@ -10,13 +10,15 @@ import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class GfycatService implements SourceService {
-  GfycatService(this.webViewController, this.configService) {
+  GfycatService(this.webViewController, this.configService, this.downloadService) {
     _hosts = configService.appConfig.gfycat.hosts;
   }
 
   final WebViewController webViewController;
 
   final ConfigService configService;
+
+  final DownloadService downloadService;
 
   static const String _javascript = '___INITIAL_STATE__.cache.gifs';
 
@@ -71,7 +73,7 @@ class GfycatService implements SourceService {
       {void Function(StreamSubscription) onDownloadStarted}) async {
     final url = downloadInfo.url;
     final filePath = '$downloadsPath${url.substring(url.lastIndexOf("/"))}';
-    await DownloadService.downloadFile(
+    await downloadService.downloadFile(
         url: url,
         filePath: filePath,
         onDownloadProgress: onDownloadProgress,
