@@ -21,7 +21,7 @@ const channelName = 'memeshart.com/save_gfy';
 
 void run({String env}) async {
   WidgetsFlutterBinding.ensureInitialized();
-  final fileService = FileService();
+  final fileService = FileService(appAssetBundle: rootBundle);
 
   // load app config
   final config = await AppConfig.forEnvironment(fileService, env);
@@ -39,6 +39,7 @@ void run({String env}) async {
     appConfig: config,
     httpClientService: httpClientService,
     downloadService: downloadService,
+    appAssetBundle: rootBundle,
   ));
 }
 
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
     this.appConfig,
     this.httpClientService,
     this.downloadService,
+    this.appAssetBundle,
   }) {
     Timer(Duration(milliseconds: 1000), () {
       platform.setMethodCallHandler(handleMethodCall);
@@ -59,6 +61,8 @@ class MyApp extends StatelessWidget {
   final HttpClientService httpClientService;
 
   final DownloadService downloadService;
+
+  final AssetBundle appAssetBundle;
 
   static const platform = const MethodChannel(channelName);
 
@@ -88,7 +92,7 @@ class MyApp extends StatelessWidget {
           create: (_) => httpClientService,
           dispose: (_, HttpClientService service) => service.dispose(),
         ),
-        Provider(create: (_) => FileService()),
+        Provider(create: (_) => FileService(appAssetBundle: appAssetBundle)),
         Provider(create: (_) => downloadService),
       ],
       child: MaterialApp(

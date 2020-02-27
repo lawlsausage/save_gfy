@@ -49,7 +49,7 @@ class AppConfig implements Config {
     Map<String, dynamic> mergedJson = {};
     for (final filename in configFilenames) {
       final configJson = (await fileService
-          .loadJsonFile('assets/config/$filename')) as Map<String, dynamic>;
+          .loadJsonFromFile('assets/config/$filename')) as Map<String, dynamic>;
       mergedJson = {...mergedJson, ...(configJson ?? Map<String, dynamic>())};
     }
     return fromJson(mergedJson);

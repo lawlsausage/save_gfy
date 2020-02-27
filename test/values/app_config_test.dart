@@ -101,7 +101,7 @@ void main() {
         var loadJsonFileCount = 0;
 
         mockedJsonConfigData.forEach((data) {
-          when(fileService.loadJsonFile(data['path'])).thenAnswer((_) async {
+          when(fileService.loadJsonFromFile(data['path'])).thenAnswer((_) async {
             loadJsonFileCount += 1;
             return data['config'];
           });
@@ -133,7 +133,7 @@ void main() {
       var loadJsonFileCount = 0;
 
       mockedJsonConfigData.forEach((data) {
-        when(fileService.loadJsonFile(data['path'])).thenAnswer((_) async {
+        when(fileService.loadJsonFromFile(data['path'])).thenAnswer((_) async {
           loadJsonFileCount += 1;
           return data['config'];
         });
