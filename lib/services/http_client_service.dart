@@ -1,23 +1,19 @@
 import 'dart:io';
 
-class HttpClientService {
-  HttpClientService() {
-    reset();
-  }
+typedef HttpClient HttpClientFactory();
 
-  final httpClient = HttpClient();
+class HttpClientService {
+  HttpClientService(this._httpClientFactory);
+
+  final HttpClientFactory _httpClientFactory;
+
+  /// [httpClient] returns a new instance of [HttpClient] as created by
+  /// the configured factory.
+  HttpClient get httpClient => _httpClientFactory()
+    ..connectionTimeout = Duration(seconds: 10)
+    ..maxConnectionsPerHost = 2
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => trustSelfSigned);
 
   bool trustSelfSigned = false;
-
-  void reset() {
-    httpClient
-      ..connectionTimeout = Duration(seconds: 10)
-      ..maxConnectionsPerHost = 2
-      ..badCertificateCallback =
-          ((X509Certificate cert, String host, int port) => trustSelfSigned);
-  }
-
-  void dispose() {
-    httpClient.close();
-  }
 }

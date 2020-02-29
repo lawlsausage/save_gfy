@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +27,7 @@ void run({String env}) async {
   // load app config
   final config = await AppConfig.forEnvironment(fileService, env);
 
-  final httpClientService = HttpClientService();
+  final httpClientService = HttpClientService(() => HttpClient());
 
   final downloadService =
       DownloadService(httpClientService.httpClient, fileService);
@@ -90,7 +91,6 @@ class MyApp extends StatelessWidget {
         ),
         Provider(
           create: (_) => httpClientService,
-          dispose: (_, HttpClientService service) => service.dispose(),
         ),
         Provider(create: (_) => FileService(appAssetBundle: appAssetBundle)),
         Provider(create: (_) => downloadService),
