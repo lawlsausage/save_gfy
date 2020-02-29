@@ -4,13 +4,18 @@ import 'dart:convert';
 import 'package:save_gfy/features/web_view/web_view_controller.dart';
 import 'package:save_gfy/services/config_service.dart';
 import 'package:save_gfy/services/download_service.dart';
+import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/source_service.dart';
 import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class GfycatService implements SourceService {
-  GfycatService(this.webViewController, this.configService, this.downloadService) {
+  GfycatService(
+    this.webViewController,
+    this.configService,
+    this.downloadService,
+  ) {
     _hosts = configService.appConfig.gfycat.hosts;
   }
 
@@ -61,8 +66,12 @@ class GfycatService implements SourceService {
         completer.complete(SourceMetadata(
             downloads: downloadInfoList, sourceUrl: currentUrl, name: name));
       } catch (err) {
+        loggerService.d('Could not parse Gfycat JSON.', err);
         completer.completeError(err);
       }
+    }).catchError((err) {
+      loggerService.d('An issue occurred when getting Gfycat JSON.', err);
+      completer.completeError(err);
     });
     return completer.future;
   }
