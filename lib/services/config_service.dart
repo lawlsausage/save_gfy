@@ -6,6 +6,10 @@ import 'package:save_gfy/values/config.dart';
 /// configuration context. Most notably, [AppConfig] may be found in the
 /// [appConfig] property and accessible to other modules throughout the application.
 class ConfigService {
+  ConfigService(this.loggerService);
+
+  final LoggerService loggerService;
+
   final Map<String, Config> configs = <String, Config>{};
 
   get appConfig => _appConfig;

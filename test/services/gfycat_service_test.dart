@@ -7,6 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:save_gfy/features/web_view/web_view_controller.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/gfycat_service.dart';
+import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
@@ -22,6 +23,8 @@ class MockDownloadInfo extends Mock implements DownloadInfo {}
 class MockSourceMetadata extends Mock implements SourceMetadata {}
 
 class MockStreamSubscription extends Mock implements StreamSubscription {}
+
+class MockLoggerService extends Mock implements LoggerService {}
 
 ConfigServiceMocks _setupConfigServiceMocks({List<String> hosts}) {
   return ConfigServiceMocks()
@@ -45,6 +48,7 @@ void main() {
           MockWebViewController(),
           configMocks.mockConfigService,
           MockDownloadService(),
+          MockLoggerService(),
         );
 
         expect(service.name, equals('Gfycat'));
@@ -62,6 +66,7 @@ void main() {
           MockWebViewController(),
           configMocks.mockConfigService,
           MockDownloadService(),
+          MockLoggerService(),
         );
 
         expect(service.isValidSource(mockedUrl), isTrue);
@@ -77,6 +82,7 @@ void main() {
           MockWebViewController(),
           configMocks.mockConfigService,
           MockDownloadService(),
+          MockLoggerService(),
         );
 
         expect(service.isValidSource(mockedUrl), isFalse);
@@ -120,6 +126,7 @@ void main() {
           mockWebViewController,
           configServiceMocks.mockConfigService,
           MockDownloadService(),
+          MockLoggerService(),
         );
         final metadata = await service.queryDownloads(mockedUrl);
 
@@ -150,6 +157,7 @@ void main() {
           mockWebViewController,
           configServiceMocks.mockConfigService,
           MockDownloadService(),
+          MockLoggerService(),
         );
 
         expect(
@@ -176,6 +184,7 @@ void main() {
           mockWebViewController,
           configServiceMocks.mockConfigService,
           MockDownloadService(),
+          MockLoggerService(),
         );
 
         expect(
@@ -235,6 +244,7 @@ void main() {
           MockWebViewController(),
           configServiceMocks.mockConfigService,
           mockDownloadService,
+          MockLoggerService(),
         );
         await service.download(
           mockedDownloadsPath,

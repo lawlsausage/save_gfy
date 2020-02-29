@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:save_gfy/features/download/download_bloc.dart';
 import 'package:save_gfy/main.dart';
 import 'package:save_gfy/services/download_service.dart';
@@ -36,6 +37,8 @@ class DownloadDialog extends StatefulWidget {
 
 class DownloadDialogState extends State<DownloadDialog>
     with SingleTickerProviderStateMixin {
+  LoggerService loggerService;
+
   StreamSubscription _subscription;
   DownloadBloc _downloadBloc = DownloadBloc();
 
@@ -44,6 +47,13 @@ class DownloadDialogState extends State<DownloadDialog>
     super.initState();
 
     _downloadFile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    loggerService = Provider.of<LoggerService>(context);
   }
 
   @override

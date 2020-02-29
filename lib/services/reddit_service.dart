@@ -8,6 +8,7 @@ import 'package:save_gfy/services/config_service.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/source_service.dart';
+import 'package:save_gfy/util/util.dart';
 import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/reddit/dash_info.dart';
@@ -15,7 +16,11 @@ import 'package:save_gfy/values/reddit/reddit_video_metadata.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
 class RedditService implements SourceService {
-  RedditService(this.configService, this.downloadService) {
+  RedditService(
+    this.configService,
+    this.downloadService,
+    this.loggerService,
+  ) {
     _hosts = configService.appConfig.reddit.hosts;
   }
 
@@ -28,6 +33,8 @@ class RedditService implements SourceService {
   final ConfigService configService;
 
   final DownloadService downloadService;
+
+  final LoggerService loggerService;
 
   final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
 
@@ -183,7 +190,10 @@ class RedditService implements SourceService {
     final formattedUrl = _formatRedditVideoMetadataUrl(url);
     final jsonString = await downloadService.getData(formattedUrl);
     final json = jsonDecode(jsonString);
-    final metadata = RedditVideoMetadata.fromJson(json);
+    final metadata = Util.catchAndDefault(
+      () => RedditVideoMetadata.fromJson(json),
+      onError: (err) => loggerService.d('Unable to parse Reddit Metadata', err),
+    );
     var downloadInfoList = metadata.downloadInfoList;
     final dashPlaylist = await _getDashPlaylist(metadata.dashPlaylistUrl);
     final parsedDownloadName = parseDownloadName(metadata.dashPlaylistUrl);

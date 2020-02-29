@@ -27,11 +27,17 @@ typedef void OnDownloadFinishedCallback(String filePath);
 
 /// Handles HTTP interactions to download various types of resources from the web.
 class DownloadService {
-  DownloadService(this.httpClient, this.fileService);
+  DownloadService(
+    this.httpClient,
+    this.fileService,
+    this.loggerService,
+  );
 
   final HttpClient httpClient;
 
   final FileService fileService;
+
+  final LoggerService loggerService;
 
   /// Downloads a file from the provided [url] to a file for the provided [filePath].
   /// HTTP resource interaction is handled on the [DownloadService.httpClient] while

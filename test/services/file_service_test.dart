@@ -6,12 +6,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
 import 'package:mockito/mockito.dart';
 import 'package:save_gfy/services/file_service.dart';
+import 'package:save_gfy/services/logger_service.dart';
 
 import '../config.dart';
 
 class MockAssetBundle extends Mock implements AssetBundle {}
 
 class MockFile extends Mock implements File {}
+
+class MockLoggerService extends Mock implements LoggerService {}
 
 void main() {
   configureEnvironment();
@@ -33,7 +36,8 @@ void main() {
         when(mockAssetBundle.loadString(argThat(equals(mockFilePath))))
             .thenAnswer((_) async => Future.value(jsonEncode(mockJson)));
 
-        final service = FileService(appAssetBundle: mockAssetBundle);
+        final service =
+            FileService(MockLoggerService(), appAssetBundle: mockAssetBundle);
         final json = await service.loadJsonFromFile(mockFilePath);
 
         expect(json, isNotNull);
@@ -64,7 +68,8 @@ void main() {
         when(mockAssetBundle.loadString(argThat(equals(mockFilePath))))
             .thenAnswer((_) async => Future.value(jsonEncode(mockJsonList)));
 
-        final service = FileService(appAssetBundle: mockAssetBundle);
+        final service =
+            FileService(MockLoggerService(), appAssetBundle: mockAssetBundle);
         final json = await service.loadJsonFromFile(mockFilePath);
 
         expect(json, isNotNull);
@@ -77,14 +82,16 @@ void main() {
         final mockAssetBundle = MockAssetBundle();
 
         when(mockAssetBundle.loadString(argThat(equals(mockFilePath))))
-            .thenAnswer((_) async => Future.value('too many chickens in the road'));
+            .thenAnswer(
+                (_) async => Future.value('too many chickens in the road'));
 
-        final service = FileService(appAssetBundle: mockAssetBundle);
+        final service =
+            FileService(MockLoggerService(), appAssetBundle: mockAssetBundle);
         final json = await service.loadJsonFromFile(mockFilePath);
 
         expect(json, isNotNull);
         expect(json, isA<Map<String, dynamic>>());
-        expect((json as Map<String,dynamic>).keys.length, equals(0));
+        expect((json as Map<String, dynamic>).keys.length, equals(0));
       });
     });
 
@@ -92,7 +99,8 @@ void main() {
       test('creates a File instance with the provided path', () {
         final mockedDirectory = mockString();
         final mockedFilePath = '$mockedDirectory/test.txt';
-        final service = FileService(appAssetBundle: MockAssetBundle());
+        final service =
+            FileService(MockLoggerService(), appAssetBundle: MockAssetBundle());
         final file = service.createFile(mockedFilePath);
 
         expect(file, isNotNull);
@@ -111,7 +119,8 @@ void main() {
           deleteCount += 1;
         });
 
-        final service = FileService(appAssetBundle: MockAssetBundle());
+        final service =
+            FileService(MockLoggerService(), appAssetBundle: MockAssetBundle());
         final file = service.deleteFileSync(mockFile);
 
         expect(deleteCount, equals(1));
@@ -128,7 +137,8 @@ void main() {
           deleteCount += 1;
         });
 
-        final service = FileService(appAssetBundle: MockAssetBundle());
+        final service =
+            FileService(MockLoggerService(), appAssetBundle: MockAssetBundle());
         final file = service.deleteFileSync(mockFile);
 
         expect(deleteCount, equals(0));

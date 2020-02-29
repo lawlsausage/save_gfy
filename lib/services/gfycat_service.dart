@@ -15,6 +15,7 @@ class GfycatService implements SourceService {
     this.webViewController,
     this.configService,
     this.downloadService,
+    this.loggerService,
   ) {
     _hosts = configService.appConfig.gfycat.hosts;
   }
@@ -24,6 +25,8 @@ class GfycatService implements SourceService {
   final ConfigService configService;
 
   final DownloadService downloadService;
+
+  final LoggerService loggerService;
 
   static const String _javascript = '___INITIAL_STATE__.cache.gifs';
 

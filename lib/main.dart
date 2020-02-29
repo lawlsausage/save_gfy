@@ -22,25 +22,25 @@ const channelName = 'memeshart.com/save_gfy';
 
 void run({String env}) async {
   WidgetsFlutterBinding.ensureInitialized();
-  final fileService = FileService(appAssetBundle: rootBundle);
+  Logger.level = Level.error;
+  final loggerService = LoggerService(Logger());
+  final fileService = FileService(loggerService, appAssetBundle: rootBundle);
 
   // load app config
   final config = await AppConfig.forEnvironment(fileService, env);
+  Logger.level = LoggerService.levels[config.logLevel];
 
   final httpClientService = HttpClientService(() => HttpClient());
 
   final downloadService =
-      DownloadService(httpClientService.httpClient, fileService);
-
-  final level = LoggerService.levels[config.logLevel];
-
-  Logger.level = level;
+      DownloadService(httpClientService.httpClient, fileService, loggerService);
 
   runApp(MyApp(
     appConfig: config,
     httpClientService: httpClientService,
     downloadService: downloadService,
     appAssetBundle: rootBundle,
+    loggerService: loggerService,
   ));
 }
 
@@ -50,6 +50,7 @@ class MyApp extends StatelessWidget {
     this.httpClientService,
     this.downloadService,
     this.appAssetBundle,
+    this.loggerService,
   }) {
     Timer(Duration(milliseconds: 1000), () {
       platform.setMethodCallHandler(handleMethodCall);
@@ -64,6 +65,8 @@ class MyApp extends StatelessWidget {
   final DownloadService downloadService;
 
   final AssetBundle appAssetBundle;
+
+  final LoggerService loggerService;
 
   static const platform = const MethodChannel(channelName);
 
@@ -86,14 +89,15 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider(
           create: (context) {
-            return ConfigService()..appConfig = appConfig;
+            return ConfigService(loggerService)..appConfig = appConfig;
           },
         ),
         Provider(
           create: (_) => httpClientService,
         ),
-        Provider(create: (_) => FileService(appAssetBundle: appAssetBundle)),
+        Provider(create: (_) => FileService(loggerService, appAssetBundle: appAssetBundle)),
         Provider(create: (_) => downloadService),
+        Provider(create: (_) => loggerService),
       ],
       child: MaterialApp(
         title: appTitle,

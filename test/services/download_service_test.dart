@@ -7,6 +7,7 @@ import 'package:mock_data/mock_data.dart';
 import 'package:mockito/mockito.dart';
 import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/file_service.dart';
+import 'package:save_gfy/services/logger_service.dart';
 
 import '../config.dart';
 import '../mocks/mock_http_client.dart';
@@ -14,6 +15,8 @@ import '../mocks/mock_http_client.dart';
 class MockFileService extends Mock implements FileService {}
 
 class MockFile extends Mock implements File {}
+
+class MockLoggerService extends Mock implements LoggerService {}
 
 void main() {
   configureEnvironment();
@@ -40,8 +43,8 @@ void main() {
               .setupListen(mockedDataAsBytes)
           ..setup(mockedUrl);
 
-        final service =
-            DownloadService(httpClientMocks.httpClient, mockedFileService);
+        final service = DownloadService(
+            httpClientMocks.httpClient, mockedFileService, MockLoggerService());
         final filePath = await service.downloadFile(
           url: mockedUrl,
           filePath: mockedFilePath,
@@ -76,8 +79,8 @@ void main() {
               )
           ..setup(mockedUrl);
 
-        final service =
-            DownloadService(httpClientMocks.httpClient, mockedFileService);
+        final service = DownloadService(
+            httpClientMocks.httpClient, mockedFileService, MockLoggerService());
         final filePath = await service.downloadFile(
           url: mockedUrl,
           filePath: mockedFilePath,
@@ -113,8 +116,8 @@ void main() {
               .setupListen(mockedDataAsBytes)
           ..setup(mockedUrl);
 
-        final service =
-            DownloadService(httpClientMocks.httpClient, mockedFileService);
+        final service = DownloadService(
+            httpClientMocks.httpClient, mockedFileService, MockLoggerService());
         final filePath = await service.downloadFile(
           url: mockedUrl,
           filePath: mockedFilePath,
@@ -152,8 +155,8 @@ void main() {
               .setupListen(mockedDataAsBytes)
           ..setup(mockedUrl);
 
-        final service =
-            DownloadService(httpClientMocks.httpClient, mockedFileService);
+        final service = DownloadService(
+            httpClientMocks.httpClient, mockedFileService, MockLoggerService());
         final filePath = await service.downloadFile(
             url: mockedUrl,
             filePath: mockedFilePath,
@@ -187,8 +190,8 @@ void main() {
               .setupListen(mockedDataAsBytes)
           ..setup(mockedUrl);
 
-        final service =
-            DownloadService(httpClientMocks.httpClient, mockedFileService);
+        final service = DownloadService(
+            httpClientMocks.httpClient, mockedFileService, MockLoggerService());
         final filePath = await service.downloadFile(
           url: mockedUrl,
           filePath: mockedFilePath,
@@ -217,8 +220,8 @@ void main() {
               .setupContentLength(mockedData.length)
           ..setup(mockedUrl);
 
-        final service =
-            DownloadService(httpClientMocks.httpClient, mockedFileService);
+        final service = DownloadService(
+            httpClientMocks.httpClient, mockedFileService, MockLoggerService());
         expect(
           () async => await service.downloadFile(
             url: mockedUrl,
@@ -257,8 +260,8 @@ void main() {
           });
         httpClientMocks.setup(mockedUrl);
 
-        final service =
-            DownloadService(httpClientMocks.httpClient, mockedFileService);
+        final service = DownloadService(
+            httpClientMocks.httpClient, mockedFileService, MockLoggerService());
         expect(
           () async {
             try {
@@ -295,8 +298,8 @@ void main() {
                 .setupTransform(utf8.encode(mockedJsonString))
             ..setup(mockedUrl);
 
-          final service =
-              DownloadService(httpClientMocks.httpClient, MockFileService());
+          final service = DownloadService(httpClientMocks.httpClient,
+              MockFileService(), MockLoggerService());
           final jsonString = await service.getData(mockedUrl);
 
           expect(jsonString, isNotNull);

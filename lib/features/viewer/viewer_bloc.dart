@@ -26,7 +26,12 @@ class ViewerBloc {
   ViewerBloc({this.context}) {
     configService = Provider.of<ConfigService>(context);
     downloadService = Provider.of<DownloadService>(context);
-    _redditService = RedditService(configService, downloadService);
+    loggerService = Provider.of<LoggerService>(context);
+    _redditService = RedditService(
+      configService,
+      downloadService,
+      loggerService,
+    );
 
     isVisibleController.add(false);
     // Initializes the current URL with a default in case the no URL has been shared.
@@ -57,6 +62,8 @@ class ViewerBloc {
   ConfigService configService;
 
   DownloadService downloadService;
+
+  LoggerService loggerService;
 
   WebViewBloc get webViewBloc => _webViewBloc;
   WebViewBloc _webViewBloc;
@@ -94,7 +101,12 @@ class ViewerBloc {
     _webViewBloc.getWebViewController.listen((controller) {
       controller.pageFinishedHandler = _handlePageFinished;
       controller.pageRedirectedHandler = _handlePageRedirected;
-      _gfycatService = GfycatService(controller, configService, downloadService);
+      _gfycatService = GfycatService(
+        controller,
+        configService,
+        downloadService,
+        loggerService,
+      );
       _sourceServices[_gfycatService.name] = _gfycatService;
 
       // getCurrentUrl.listen((url) => controller.loadUrl(url));

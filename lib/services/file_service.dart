@@ -8,7 +8,9 @@ import 'package:save_gfy/services/logger_service.dart';
 /// Provides helpful interactions with the underlying file system for reading or modifying
 /// local file resources.
 class FileService {
-  FileService({@required this.appAssetBundle});
+  FileService(this.loggerService, {@required this.appAssetBundle});
+
+  final LoggerService loggerService;
 
   final AssetBundle appAssetBundle;
 

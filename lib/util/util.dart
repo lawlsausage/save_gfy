@@ -27,4 +27,18 @@ class Util {
         ? 'https://$url'
         : url.replaceFirst('http://', 'https://');
   }
+
+  static T catchAndDefault<T>(
+    T Function() action, {
+    T defaultValue,
+    void Function(dynamic) onError,
+  }) {
+    try {
+      return action?.call();
+    } catch (err) {
+      onError?.call(err);
+    }
+
+    return defaultValue ?? null;
+  }
 }

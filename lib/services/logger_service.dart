@@ -2,7 +2,9 @@ import 'package:logger/logger.dart';
 
 /// LoggerService is a light abstraction layer to the logger package.
 class LoggerService {
-  final _logger = Logger();
+  LoggerService(this._logger);
+
+  final Logger _logger;
 
   static const Map<String, Level> levels = {
     'debug': Level.debug,
@@ -42,5 +44,3 @@ class LoggerService {
     _logger.wtf(message, error, stackTrace);
   }
 }
-
-final loggerService = LoggerService();

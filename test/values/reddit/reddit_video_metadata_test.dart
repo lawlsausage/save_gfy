@@ -60,7 +60,7 @@ void main() {
         expect(result, isNull);
       });
 
-      test('returns null for malformed JSON', () {
+      test('throws for malformed JSON', () {
         final mockedJson = [
           {
             'data': {
@@ -71,9 +71,10 @@ void main() {
           },
         ];
 
-        final result = RedditVideoMetadata.fromJson(mockedJson);
-
-        expect(result, isNull);
+        expect(
+          () => RedditVideoMetadata.fromJson(mockedJson),
+          throwsA(anything),
+        );
       });
     });
   });
