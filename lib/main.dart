@@ -95,9 +95,17 @@ class MyApp extends StatelessWidget {
         Provider(
           create: (_) => httpClientService,
         ),
-        Provider(create: (_) => FileService(loggerService, appAssetBundle: appAssetBundle)),
+        Provider(
+          create: (_) => FileService(
+            loggerService,
+            appAssetBundle: appAssetBundle,
+          ),
+        ),
         Provider(create: (_) => downloadService),
-        Provider(create: (_) => loggerService),
+        Provider(
+          create: (_) => loggerService,
+          dispose: (_, LoggerService service) => service.close(),
+        ),
       ],
       child: MaterialApp(
         title: appTitle,
