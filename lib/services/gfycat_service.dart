@@ -2,17 +2,31 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:save_gfy/features/web_view/web_view_controller.dart';
-import 'package:save_gfy/main.dart';
+import 'package:save_gfy/services/config_service.dart';
 import 'package:save_gfy/services/download_service.dart';
+import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/source_service.dart';
 import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
-class GfycatService implements SourceService {
-  GfycatService(this.webViewController);
+class GfycatService extends SourceService {
+  GfycatService(
+    this.webViewController,
+    this.configService,
+    this.downloadService,
+    this.loggerService,
+  ) {
+    _hosts = configService.appConfig.gfycat.hosts;
+  }
 
   final WebViewController webViewController;
+
+  final ConfigService configService;
+
+  final DownloadService downloadService;
+
+  final LoggerService loggerService;
 
   static const String _javascript = '___INITIAL_STATE__.cache.gifs';
 
@@ -21,20 +35,15 @@ class GfycatService implements SourceService {
     DownloadType.webm: '.webm',
   };
 
-  final List<String> _hosts = MyApp.configService.getAppConfig().gfycat.hosts;
+  List<String> _hosts;
 
   String _currentUrl;
 
   @override
   String get name => 'Gfycat';
 
-  @override
-  bool isValidSource(String url) {
-    final formattedUrl = url?.toLowerCase() ?? '';
-    final matchedHost = _hosts.firstWhere((host) => formattedUrl.contains(host),
-        orElse: () => null);
-    return matchedHost != null;
-  }
+  @override 
+  List<String> get hosts => _hosts;
 
   @override
   Future<String> formatUrl(String url) {
@@ -55,8 +64,12 @@ class GfycatService implements SourceService {
         completer.complete(SourceMetadata(
             downloads: downloadInfoList, sourceUrl: currentUrl, name: name));
       } catch (err) {
+        loggerService.d('Could not parse Gfycat JSON.', err);
         completer.completeError(err);
       }
+    }).catchError((err) {
+      loggerService.d('An issue occurred when getting Gfycat JSON.', err);
+      completer.completeError(err);
     });
     return completer.future;
   }
@@ -67,7 +80,7 @@ class GfycatService implements SourceService {
       {void Function(StreamSubscription) onDownloadStarted}) async {
     final url = downloadInfo.url;
     final filePath = '$downloadsPath${url.substring(url.lastIndexOf("/"))}';
-    await DownloadService.downloadFile(
+    await downloadService.downloadFile(
         url: url,
         filePath: filePath,
         onDownloadProgress: onDownloadProgress,

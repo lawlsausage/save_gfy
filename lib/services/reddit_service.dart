@@ -1,29 +1,48 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
-import 'package:save_gfy/main.dart';
 import 'package:save_gfy/models/xml/xml_document.dart';
+import 'package:save_gfy/services/config_service.dart';
 import 'package:save_gfy/services/download_service.dart';
+import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/source_service.dart';
+import 'package:save_gfy/services/video_service.dart';
+import 'package:save_gfy/util/util.dart';
 import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/reddit/dash_info.dart';
 import 'package:save_gfy/values/reddit/reddit_video_metadata.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
-class RedditService implements SourceService {
+class RedditService extends SourceService {
+  RedditService(
+    this.configService,
+    this.downloadService,
+    this.fileService,
+    this.videoService,
+    this.loggerService,
+  ) {
+    _hosts = configService.appConfig.reddit.hosts;
+  }
+
   static const String redditVideoHostUrl = 'https://v.redd.it/';
 
   static const String videoFileSuffix = '_savegfyorig';
 
   static const String audioFileSuffix = '_savegfyorig_audio';
 
-  final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
+  final ConfigService configService;
 
-  final List<String> _hosts = MyApp.configService.getAppConfig().reddit.hosts;
+  final DownloadService downloadService;
+
+  final FileService fileService;
+
+  final VideoService videoService;
+
+  final LoggerService loggerService;
+
+  List<String> _hosts;
 
   String _currentUrl;
 
@@ -31,12 +50,7 @@ class RedditService implements SourceService {
   String get name => 'Reddit';
 
   @override
-  bool isValidSource(String url) {
-    final formattedUrl = url?.toLowerCase() ?? '';
-    final matchedHost = _hosts.firstWhere((host) => formattedUrl.contains(host),
-        orElse: () => null);
-    return matchedHost != null;
-  }
+  List<String> get hosts => _hosts;
 
   @override
   Future<String> formatUrl(String url) {
@@ -102,7 +116,7 @@ class RedditService implements SourceService {
       filePaths.add(audioFilePath);
     }
 
-    await _mergeFiles(filePaths);
+    await _processFiles(filePaths);
   }
 
   Future<String> _downloadVideo(
@@ -114,7 +128,7 @@ class RedditService implements SourceService {
   }) async {
     final filePath = '$downloadsPath/${downloadInfo.name}';
     try {
-      await DownloadService.downloadFile(
+      await downloadService.downloadFile(
         url: url,
         filePath: filePath,
         onDownloadProgress: onDownloadProgress,
@@ -138,7 +152,7 @@ class RedditService implements SourceService {
       final name =
           downloadInfo.name.replaceAll(videoFileSuffix, audioFileSuffix);
       final filePath = '$downloadsPath/$name';
-      await DownloadService.downloadFile(
+      await downloadService.downloadFile(
         url: url,
         filePath: filePath,
         onDownloadProgress: onDownloadProgress,
@@ -151,18 +165,19 @@ class RedditService implements SourceService {
     }
   }
 
-  Future _mergeFiles(List<String> filePaths) async {
+  Future _processFiles(List<String> filePaths) async {
     final outputFilePath = filePaths[0].replaceAll(videoFileSuffix, '');
+    // TODO: delete the file (if exists) before attempting a merge
     if ((filePaths?.length ?? 0) > 1) {
-      final returnCode = await _flutterFFmpeg.execute(
-          '-i ${filePaths[0]} -i ${filePaths[1]} -c:v copy -c:a aac -strict experimental $outputFilePath');
+      final returnCode = await videoService.mergeVideoAndAudio(
+          filePaths[0], filePaths[1], outputFilePath);
 
       if (returnCode == 0) {
-        File(filePaths[0]).delete();
-        File(filePaths[1]).delete();
+        fileService.deleteFileSync(fileService.instance(filePaths[0]));
+        fileService.deleteFileSync(fileService.instance(filePaths[1]));
       }
     } else {
-      File(filePaths[0]).renameSync(outputFilePath);
+      fileService.instance(filePaths[0]).renameSync(outputFilePath);
     }
   }
 
@@ -172,9 +187,12 @@ class RedditService implements SourceService {
     }
 
     final formattedUrl = _formatRedditVideoMetadataUrl(url);
-    final jsonString = await DownloadService.getData(formattedUrl);
+    final jsonString = await downloadService.getData(formattedUrl);
     final json = jsonDecode(jsonString);
-    final metadata = RedditVideoMetadata.fromJson(json);
+    final metadata = Util.catchAndDefault(
+      () => RedditVideoMetadata.fromJson(json),
+      onError: (err) => loggerService.d('Unable to parse Reddit Metadata', err),
+    );
     var downloadInfoList = metadata.downloadInfoList;
     final dashPlaylist = await _getDashPlaylist(metadata.dashPlaylistUrl);
     final parsedDownloadName = parseDownloadName(metadata.dashPlaylistUrl);
@@ -193,13 +211,15 @@ class RedditService implements SourceService {
     final parsedDownloadName = parseDownloadName(url);
     final parsedDownloadUrl =
         url.substring(0, url.toLowerCase().indexOf('dash'));
-    var downloadInfoList = [
-      DownloadInfo(
-        type: DownloadType.mp4,
-        name: '${parseDownloadName(url)}$videoFileSuffix.mp4',
-        url: url,
-      ),
-    ];
+    var downloadInfoList = !url.toLowerCase().contains('dashplaylist')
+        ? [
+            DownloadInfo(
+              type: DownloadType.mp4,
+              name: '${parseDownloadName(url)}$videoFileSuffix.mp4',
+              url: url,
+            ),
+          ]
+        : null;
     final dashPlaylist =
         await _getDashPlaylist('${parsedDownloadUrl}DASHPlaylist.mpd');
     downloadInfoList = _transformDashPlaylistToDownloadInfo(
@@ -217,18 +237,23 @@ class RedditService implements SourceService {
     final resolvedUrl = !lowerCaseUrl.contains('dashplaylist.mpd')
         ? url.substring(0, lowerCaseUrl.indexOf('dash'))
         : url;
-    final xmlString = await DownloadService.getData(resolvedUrl);
-    final representationXmlElements = XmlDocument.fromString(xmlString)
-        ?.findElements('MPD')
-        ?.first
-        ?.findElements('Period')
-        ?.first
-        ?.findElements('AdaptationSet')
-        ?.first
-        ?.findElements('Representation');
-    return representationXmlElements
-        ?.map((element) => DashInfo.fromXml(element))
-        ?.toList();
+    final xmlString = await downloadService.getData(resolvedUrl);
+    try {
+      final representationXmlElements = XmlDocument.fromString(xmlString)
+          .findElements('MPD')
+          .first
+          .findElements('Period')
+          .first
+          .findElements('AdaptationSet')
+          .first
+          .findElements('Representation');
+      return representationXmlElements
+          .map((element) => DashInfo.fromXml(element))
+          .toList();
+    } catch (err) {
+      loggerService.d('Unable to parse DASHPlaylist', err);
+      rethrow;
+    }
   }
 
   List<DownloadInfo> _transformDashPlaylistToDownloadInfo(
@@ -248,9 +273,8 @@ class RedditService implements SourceService {
               .toList()
           : null;
     } catch (err) {
-      loggerService.d('Unable to parse DASHPlaylist', err);
+      loggerService.d('Unable to transform DASHPlaylist to DownloadInfo', err);
     }
-
     return null;
   }
 

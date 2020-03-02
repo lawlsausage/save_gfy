@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:save_gfy/blocs/shared_url_bloc.dart';
 import 'package:save_gfy/features/buttons/raised_icon_button.dart';
-import 'package:save_gfy/main.dart';
+import 'package:save_gfy/services/config_service.dart';
 
 typedef OnPasteCallback(String value);
 
@@ -16,10 +17,7 @@ class PasteUrl extends StatefulWidget {
 }
 
 class _PasteUrlState extends State<PasteUrl> {
-  final List<String> _validHosts = [
-    ...MyApp.configService.getAppConfig().gfycat.hosts,
-    ...MyApp.configService.getAppConfig().reddit.hosts,
-  ];
+  List<String> _validHosts;
 
   String _clipboardContent = '';
 
@@ -43,8 +41,16 @@ class _PasteUrlState extends State<PasteUrl> {
   }
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final configService = Provider.of<ConfigService>(context);
+
+    _validHosts = [
+      ...configService.appConfig.gfycat.hosts,
+      ...configService.appConfig.reddit.hosts,
+    ];
+
     _initClipboardData();
   }
 

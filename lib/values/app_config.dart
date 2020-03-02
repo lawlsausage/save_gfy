@@ -3,7 +3,7 @@ import 'package:save_gfy/values/app_site_config.dart';
 import 'package:save_gfy/values/config.dart';
 
 class AppConfig implements Config {
-  AppConfig({
+  const AppConfig({
     this.defaultUrl,
     this.gfycat,
     this.reddit,
@@ -49,7 +49,7 @@ class AppConfig implements Config {
     Map<String, dynamic> mergedJson = {};
     for (final filename in configFilenames) {
       final configJson = (await fileService
-          .loadJsonFile('assets/config/$filename')) as Map<String, dynamic>;
+          .loadJsonFromFile('assets/config/$filename')) as Map<String, dynamic>;
       mergedJson = {...mergedJson, ...(configJson ?? Map<String, dynamic>())};
     }
     return fromJson(mergedJson);

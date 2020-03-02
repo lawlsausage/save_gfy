@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:save_gfy/features/buttons/hidable_fab.dart';
 import 'package:save_gfy/features/download/download_dialog.dart';
 import 'package:save_gfy/features/download/download_options.dart';
@@ -25,9 +26,11 @@ class Viewer extends StatefulWidget {
 }
 
 class _ViewerState extends State<Viewer> {
+  LoggerService loggerService;
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final ViewerBloc _viewerBloc = ViewerBloc();
+  ViewerBloc _viewerBloc;
 
   void _handleViewDownloads() async {
     try {
@@ -117,6 +120,15 @@ class _ViewerState extends State<Viewer> {
       content: content != null ? content : Text(message),
     );
     return _scaffoldKey.currentState.showSnackBar(snackBar);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _viewerBloc = ViewerBloc(context: context);
+
+    loggerService = Provider.of<LoggerService>(context);
   }
 
   @override

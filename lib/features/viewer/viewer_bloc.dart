@@ -1,13 +1,19 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:save_gfy/blocs/shared_url_bloc.dart';
 import 'package:save_gfy/features/web_view/web_view_bloc.dart';
 import 'package:save_gfy/main.dart';
+import 'package:save_gfy/services/config_service.dart';
+import 'package:save_gfy/services/download_service.dart';
+import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/services/gfycat_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/reddit_service.dart';
 import 'package:save_gfy/services/source_service.dart';
+import 'package:save_gfy/services/video_service.dart';
 import 'package:save_gfy/util/util.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
@@ -19,10 +25,23 @@ enum ViewerStatus {
 }
 
 class ViewerBloc {
-  ViewerBloc() {
+  ViewerBloc({this.context}) {
+    configService = Provider.of<ConfigService>(context);
+    downloadService = Provider.of<DownloadService>(context);
+    fileService = Provider.of<FileService>(context);
+    videoService = Provider.of<VideoService>(context);
+    loggerService = Provider.of<LoggerService>(context);
+    _redditService = RedditService(
+      configService,
+      downloadService,
+      fileService,
+      videoService,
+      loggerService,
+    );
+
     isVisibleController.add(false);
     // Initializes the current URL with a default in case the no URL has been shared.
-    currentUrlController.add(_defaultUrl);
+    currentUrlController.add(configService.appConfig.defaultUrl);
 
     initWebViewState();
     initDeviceContext();
@@ -30,7 +49,7 @@ class ViewerBloc {
     _sourceServices[_redditService.name] = _redditService;
   }
 
-  final String _defaultUrl = MyApp.configService.getAppConfig().defaultUrl;
+  final BuildContext context;
 
   final statusStreamController = BehaviorSubject<ViewerStatus>();
   Stream<ViewerStatus> get getStatus => statusStreamController.stream;
@@ -44,9 +63,17 @@ class ViewerBloc {
   final progressStreamController = BehaviorSubject<double>();
   Stream<double> get getProgress => progressStreamController.stream;
 
-  final RedditService _redditService = RedditService();
-
   final Map<String, SourceService> _sourceServices = {};
+
+  ConfigService configService;
+
+  DownloadService downloadService;
+
+  FileService fileService;
+
+  VideoService videoService;
+
+  LoggerService loggerService;
 
   WebViewBloc get webViewBloc => _webViewBloc;
   WebViewBloc _webViewBloc;
@@ -55,8 +82,10 @@ class ViewerBloc {
 
   String get downloadsPath => _downloadsPath;
   String _downloadsPath = '';
-  
+
   GfycatService _gfycatService;
+
+  RedditService _redditService;
 
   void initWebViewState() {
     Timer(Duration(milliseconds: 500), () {
@@ -82,7 +111,12 @@ class ViewerBloc {
     _webViewBloc.getWebViewController.listen((controller) {
       controller.pageFinishedHandler = _handlePageFinished;
       controller.pageRedirectedHandler = _handlePageRedirected;
-      _gfycatService = GfycatService(controller);
+      _gfycatService = GfycatService(
+        controller,
+        configService,
+        downloadService,
+        loggerService,
+      );
       _sourceServices[_gfycatService.name] = _gfycatService;
 
       // getCurrentUrl.listen((url) => controller.loadUrl(url));

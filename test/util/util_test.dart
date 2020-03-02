@@ -90,5 +90,38 @@ main() {
             greaterThan('https://'.length));
       });
     });
+
+    group('catchAndDefault', ()  {
+      test('returns value on no exception', () {
+        final value = mockString();
+        final result = Util.catchAndDefault(() => value);
+
+        expect(result, equals(value));
+      });
+
+      test('returns default value on catching exception', () {
+        final defaultValue = mockString();
+        final result = Util.catchAndDefault(() => throw ('an error'), defaultValue: defaultValue);
+
+        expect(result, equals(defaultValue));
+      });
+
+      test('returns null if no default value provided on catching exception', () {
+        final result = Util.catchAndDefault(() => throw ('an error'));
+
+        expect(result, isNull);
+      });
+
+      test('invokes onError on catching exception', () {
+        var onErrorCount = 0;
+
+        Util.catchAndDefault(() => throw ('an error'), onError: (err) {
+          onErrorCount += 1;
+          expect(err, equals('an error'));
+        });
+
+        expect(onErrorCount, equals(1));
+      });
+    });
   });
 }

@@ -2,37 +2,65 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 
+/// A [Function] which accepts [subscription] and [totalBytes] parameters where:
+///
+/// - [subscription] - The [StreamSubscription] to override the listening of the
+/// response data.
+/// - [totalBytes] - The total number of bytes (size) of the download file.
 typedef void OnDownloadStartedCallback(
     StreamSubscription subscription, int totalBytes);
+
+/// A [Function] which accepts [receivedBytes] and [totalBytes] parameters where:
+///
+/// - [receivedBytes] - The number of bytes downloaded from the response [StreamSubscription]
+/// at a point of time.
+/// - [totalBytes] - The total number of bytes (size) of the download file.
 typedef void OnDownloadProgressCallback(int receivedBytes, int totalBytes);
-typedef void OnDownloadFinishedCallback(String filepath);
-typedef void OnListenCallback(StreamSubscription subscription);
 
+/// A [Function] which accepts a [filePath] parameter which is the fully qualified
+/// file name with path of the saved file.
+typedef void OnDownloadFinishedCallback(String filePath);
+
+/// Handles HTTP interactions to download various types of resources from the web.
 class DownloadService {
-  static bool trustSelfSigned = false;
+  DownloadService(
+    this.httpClient,
+    this.fileService,
+    this.loggerService,
+  );
 
-  static HttpClient getHttpClient() {
-    final httpClient = HttpClient()
-      ..connectionTimeout = Duration(seconds: 10)
-      ..maxConnectionsPerHost = 2
-      ..badCertificateCallback =
-          ((X509Certificate cert, String host, int port) => trustSelfSigned);
-    return httpClient;
-  }
+  final HttpClient httpClient;
 
-  static Future<String> downloadFile({
-    String url,
-    String filePath,
+  final FileService fileService;
+
+  final LoggerService loggerService;
+
+  /// Downloads a file from the provided [url] to a file for the provided [filePath].
+  /// HTTP resource interaction is handled on the [DownloadService.httpClient] while
+  /// file system interaction is via [DownloadService.fileService].
+  ///
+  /// The order of the callback [Function]s are as follows:
+  ///
+  /// 1. [onDownloadStarted] - Invoked when the HTTP response is listened to and a
+  /// [StreamSubscription] had been created.
+  /// 2. [onDownloadProgress] - Invoked as data is streamed from the HTTP response.
+  /// 3. [onDownloadFinished] - Invoked after the [StreamSubscription] of the HTTP
+  /// response had finished.
+  Future<String> downloadFile({
+    @required String url,
+    @required String filePath,
     OnDownloadStartedCallback onDownloadStarted,
     OnDownloadProgressCallback onDownloadProgress,
     OnDownloadFinishedCallback onDownloadFinished,
   }) async {
     assert(url != null);
+    assert(filePath != null);
 
-    final saveFile = File(filePath);
-    final httpClient = getHttpClient();
+    final saveFile = fileService.instance(filePath);
 
     try {
       final request = await httpClient.getUrl(Uri.parse(url));
@@ -47,29 +75,27 @@ class DownloadService {
         throw ('$statusCode: Unable to download');
       }
 
-      if (saveFile.existsSync()) {
-        saveFile.deleteSync();
-      }
+      fileService.deleteFileSync(saveFile);
       saveFile.createSync();
 
       await _listenOnResponse(
-          response, saveFile, handleListen, onDownloadProgress);
+        response,
+        saveFile,
+        handleListen,
+        onDownloadProgress,
+      );
       onDownloadFinished?.call(saveFile.path);
     } catch (err) {
-      if (saveFile.existsSync()) {
-        saveFile.deleteSync();
-      }
+      fileService.deleteFileSync(saveFile);
       rethrow;
-    } finally {
-      httpClient.close();
     }
     return saveFile.path;
   }
 
-  static Future _listenOnResponse(
+  Future _listenOnResponse(
       HttpClientResponse response,
       File file,
-      OnListenCallback onListen,
+      void Function(StreamSubscription) onListen,
       OnDownloadProgressCallback onDownloadProgress) {
     final completer = Completer<List<int>>();
 
@@ -106,11 +132,13 @@ class DownloadService {
     return completer.future;
   }
 
-  static Future<String> getData(String url) async {
+  /// Retrieves [String] data from the provided [url] parameter.
+  ///
+  /// HTTP resource interaction is handled on the [DownloadService.httpClient].
+  Future<String> getData(String url) async {
     assert(url != null);
 
     String jsonString = '';
-    final httpClient = getHttpClient();
     final request = await httpClient.getUrl(Uri.parse(url));
     final response = await request.close();
     await for (String content in response.transform(Utf8Decoder())) {

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:save_gfy/features/web_view/web_view_bloc.dart';
 import 'package:save_gfy/features/web_view/web_view_controller.dart';
 import 'package:save_gfy/services/logger_service.dart';
@@ -27,9 +28,14 @@ class WebViewState extends State<WebView> {
 
   Map<TargetPlatform, Widget Function()> _viewStrategy;
 
+  LoggerService loggerService;
+
   void _onPlatformViewCreated(int id) {
     final controller = WebViewController(
-        id: id, onWebViewProgressChanged: widget.onWebViewProgressChanged);
+      id: id,
+      loggerService: loggerService,
+      onWebViewProgressChanged: widget.onWebViewProgressChanged,
+    );
     webViewBloc.updateWebViewController(controller);
     widget.onWebViewCreated?.call(webViewBloc);
   }
@@ -51,6 +57,13 @@ class WebViewState extends State<WebView> {
 
     _viewStrategy =
         Map.unmodifiable({TargetPlatform.android: _createAndroidView});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    loggerService = Provider.of<LoggerService>(context);
   }
 
   @override

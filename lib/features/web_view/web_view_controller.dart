@@ -6,6 +6,7 @@ import 'package:save_gfy/services/logger_service.dart';
 class WebViewController {
   WebViewController({
     int id,
+    this.loggerService,
     this.onWebViewProgressChanged,
   }) {
     _channel = new MethodChannel('$channelName/webview$id');
@@ -18,6 +19,8 @@ class WebViewController {
       'progressChanged': _handleProgressChanged
     });
   }
+
+  final LoggerService loggerService;
 
   final WebViewProgressChangedCallback onWebViewProgressChanged;
 
