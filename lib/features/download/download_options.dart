@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:save_gfy/values/download_info.dart';
+import 'package:save_gfy/values/download_type.dart';
 
 typedef void OnTapDownloadOption(DownloadInfo downloadInfo);
 
@@ -22,7 +23,7 @@ class DownloadOptions extends StatelessWidget {
       final quality =
           ((download.quality?.length ?? 0) > 0) ? '${download.quality} ' : '';
       return ListTile(
-        title: Text('$quality${download.type}'),
+        title: Text('$quality${download.type.name}'),
         onTap: () => this.onTapDownloadOption(download),
       );
     });
