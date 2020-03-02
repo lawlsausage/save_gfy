@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
-import 'package:mockito/mockito.dart';
 import 'package:save_gfy/services/source_service.dart';
 import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/source_metadata.dart';
