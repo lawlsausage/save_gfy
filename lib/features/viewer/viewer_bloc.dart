@@ -8,10 +8,12 @@ import 'package:save_gfy/features/web_view/web_view_bloc.dart';
 import 'package:save_gfy/main.dart';
 import 'package:save_gfy/services/config_service.dart';
 import 'package:save_gfy/services/download_service.dart';
+import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/services/gfycat_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/services/reddit_service.dart';
 import 'package:save_gfy/services/source_service.dart';
+import 'package:save_gfy/services/video_service.dart';
 import 'package:save_gfy/util/util.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
@@ -26,10 +28,14 @@ class ViewerBloc {
   ViewerBloc({this.context}) {
     configService = Provider.of<ConfigService>(context);
     downloadService = Provider.of<DownloadService>(context);
+    fileService = Provider.of<FileService>(context);
+    videoService = Provider.of<VideoService>(context);
     loggerService = Provider.of<LoggerService>(context);
     _redditService = RedditService(
       configService,
       downloadService,
+      fileService,
+      videoService,
       loggerService,
     );
 
@@ -62,6 +68,10 @@ class ViewerBloc {
   ConfigService configService;
 
   DownloadService downloadService;
+
+  FileService fileService;
+
+  VideoService videoService;
 
   LoggerService loggerService;
 

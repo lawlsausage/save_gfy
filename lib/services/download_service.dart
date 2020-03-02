@@ -60,7 +60,7 @@ class DownloadService {
     assert(url != null);
     assert(filePath != null);
 
-    final saveFile = fileService.createFile(filePath);
+    final saveFile = fileService.instance(filePath);
 
     try {
       final request = await httpClient.getUrl(Uri.parse(url));

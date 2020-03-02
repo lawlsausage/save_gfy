@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:save_gfy/blocs/shared_url_bloc.dart';
@@ -13,6 +14,7 @@ import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/services/http_client_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
+import 'package:save_gfy/services/video_service.dart';
 import 'package:save_gfy/values/app_config.dart';
 import 'package:save_gfy/values/routes.dart' as SaveGfyRoutes;
 
@@ -24,7 +26,11 @@ void run({String env}) async {
   WidgetsFlutterBinding.ensureInitialized();
   Logger.level = Level.error;
   final loggerService = LoggerService(Logger());
-  final fileService = FileService(loggerService, appAssetBundle: rootBundle);
+  final fileService = FileService(
+    (filePath) => File(filePath),
+    loggerService,
+    appAssetBundle: rootBundle,
+  );
 
   // load app config
   final config = await AppConfig.forEnvironment(fileService, env);
@@ -35,10 +41,13 @@ void run({String env}) async {
   final downloadService =
       DownloadService(httpClientService.httpClient, fileService, loggerService);
 
+  final flutterFFmpegFactory = () => FlutterFFmpeg();
+
   runApp(MyApp(
     appConfig: config,
     httpClientService: httpClientService,
     downloadService: downloadService,
+    flutterFFmpegFactory: flutterFFmpegFactory,
     appAssetBundle: rootBundle,
     loggerService: loggerService,
   ));
@@ -49,6 +58,7 @@ class MyApp extends StatelessWidget {
     this.appConfig,
     this.httpClientService,
     this.downloadService,
+    this.flutterFFmpegFactory,
     this.appAssetBundle,
     this.loggerService,
   }) {
@@ -63,6 +73,8 @@ class MyApp extends StatelessWidget {
   final HttpClientService httpClientService;
 
   final DownloadService downloadService;
+
+  final FlutterFFmpeg Function() flutterFFmpegFactory;
 
   final AssetBundle appAssetBundle;
 
@@ -97,11 +109,13 @@ class MyApp extends StatelessWidget {
         ),
         Provider(
           create: (_) => FileService(
+            (filePath) => File(filePath),
             loggerService,
             appAssetBundle: appAssetBundle,
           ),
         ),
         Provider(create: (_) => downloadService),
+        Provider(create: (_) => VideoService(flutterFFmpegFactory())),
         Provider(
           create: (_) => loggerService,
           dispose: (_, LoggerService service) => service.close(),

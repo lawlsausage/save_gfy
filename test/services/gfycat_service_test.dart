@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
 import 'package:mockito/mockito.dart';
 import 'package:save_gfy/features/web_view/web_view_controller.dart';
-import 'package:save_gfy/services/download_service.dart';
 import 'package:save_gfy/services/gfycat_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 import 'package:save_gfy/values/download_info.dart';
@@ -13,16 +12,13 @@ import 'package:save_gfy/values/source_metadata.dart';
 
 import '../config.dart';
 import '../mocks/config_service_mocks.dart';
+import '../mocks/mock_download_service.dart';
 
 class MockWebViewController extends Mock implements WebViewController {}
-
-class MockDownloadService extends Mock implements DownloadService {}
 
 class MockDownloadInfo extends Mock implements DownloadInfo {}
 
 class MockSourceMetadata extends Mock implements SourceMetadata {}
-
-class MockStreamSubscription extends Mock implements StreamSubscription {}
 
 class MockLoggerService extends Mock implements LoggerService {}
 
@@ -55,6 +51,7 @@ void main() {
       });
     });
 
+    // TODO: Move to source_service_test.dart
     group('isValidSource', () {
       test('returns true for url which contains a valid host', () {
         final mockedHosts =
@@ -133,7 +130,6 @@ void main() {
         expect(metadata, isNotNull);
         expect(metadata.name, contains(randomKey));
         expect(metadata.sourceUrl, equals(mockedUrl));
-        expect(metadata.downloads, isNotEmpty);
         expect(metadata.downloads, hasLength(mockedUrls.keys.length));
 
         metadata.downloads.forEach((download) {
@@ -166,7 +162,7 @@ void main() {
         );
       });
 
-      test('retrhows error when parsing Gfycat JSON', () async {
+      test('rethrows error when parsing Gfycat JSON', () async {
         final configServiceMocks = _setupConfigServiceMocks();
         final mockedUrl = 'https://gfycat.com/${mockString()}';
         final mockWebViewController = MockWebViewController();
@@ -206,6 +202,7 @@ void main() {
         var downloadFileCount = 0;
         var downloadProgressCount = 0;
         var downloadStartedCount = 0;
+
         void handleDownloadProgress(int received, int totalBytes) {
           downloadProgressCount += 1;
           expect(received, equals(0));
@@ -218,27 +215,15 @@ void main() {
         }
 
         when(mockDownloadInfo.url).thenReturn(mockedUrl);
-        when(mockDownloadService.downloadFile(
-          url: argThat(
-            equals(mockedUrl),
-            named: 'url',
-          ),
-          filePath: argThat(
-            stringContainsInOrder([mockedDownloadsPath, mockedPath]),
-            named: 'filePath',
-          ),
-          onDownloadProgress: anyNamed('onDownloadProgress'),
-          onDownloadStarted: anyNamed('onDownloadStarted'),
-        )).thenAnswer((invocation) {
-          final void Function(int, int) onDownloadProgress =
-              invocation.namedArguments[#onDownloadProgress];
-          final void Function(StreamSubscription, int) onDownloadStarted =
-              invocation.namedArguments[#onDownloadStarted];
-          downloadFileCount += 1;
-          onDownloadProgress?.call(0, 0);
-          onDownloadStarted?.call(MockStreamSubscription(), mockInteger());
-          return Future.value(mockString());
-        });
+        mockDownloadService.setupDownloadFile(
+          url: mockedUrl,
+          downloadsPath: mockedDownloadsPath,
+          path: mockedPath,
+          onAnswer: (_) {
+            downloadFileCount += 1;
+            return mockString();
+          },
+        );
 
         final service = GfycatService(
           MockWebViewController(),

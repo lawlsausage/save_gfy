@@ -6,7 +6,14 @@ import 'package:save_gfy/values/source_metadata.dart';
 abstract class SourceService {
   final String name = 'Source';
 
-  bool isValidSource(String url);
+  final List<String> hosts = [];
+
+  bool isValidSource(String url) {
+    final formattedUrl = url?.toLowerCase() ?? '';
+    final matchedHost = hosts.firstWhere((host) => formattedUrl.contains(host),
+        orElse: () => null);
+    return matchedHost != null;
+  }
 
   Future<String> formatUrl(String url);
 

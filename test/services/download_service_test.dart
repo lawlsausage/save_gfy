@@ -6,15 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
 import 'package:mockito/mockito.dart';
 import 'package:save_gfy/services/download_service.dart';
-import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 
 import '../config.dart';
+import '../mocks/mock_file_service.dart';
 import '../mocks/mock_http_client.dart';
-
-class MockFileService extends Mock implements FileService {}
-
-class MockFile extends Mock implements File {}
 
 class MockLoggerService extends Mock implements LoggerService {}
 
@@ -29,12 +25,11 @@ void main() {
         final mockedUrl = 'https://${mockString()}';
         final mockedFilePath = mockString();
         final httpClientMocks = HttpClientMocks();
-        final mockedFileService = MockFileService();
-        final mockFile = MockFile();
+        final mockFile = MockFile(filePath: mockedFilePath);
+        final mockedFileService = MockFileService(mockFileFactory: (filePath) => mockFile);
 
         when(mockFile.path).thenReturn(mockedFilePath);
         when(mockFile.existsSync()).thenReturn(false);
-        when(mockedFileService.createFile(mockedFilePath)).thenReturn(mockFile);
 
         httpClientMocks
           ..response
@@ -60,13 +55,13 @@ void main() {
         final mockedUrl = 'https://${mockString()}';
         final mockedFilePath = mockString();
         final httpClientMocks = HttpClientMocks();
-        final mockedFileService = MockFileService();
-        final mockFile = MockFile();
+        final mockFile = MockFile(filePath: mockedFilePath);
+        final mockedFileService = MockFileService(mockFileFactory: (filePath) => mockFile);
+
         StreamSubscription mockedStreamSubscription;
 
         when(mockFile.path).thenReturn(mockedFilePath);
         when(mockFile.existsSync()).thenReturn(false);
-        when(mockedFileService.createFile(mockedFilePath)).thenReturn(mockFile);
 
         httpClientMocks
           ..response
@@ -101,13 +96,13 @@ void main() {
         final mockedUrl = 'https://${mockString()}';
         final mockedFilePath = mockString();
         final httpClientMocks = HttpClientMocks();
-        final mockedFileService = MockFileService();
-        final mockFile = MockFile();
+        final mockFile = MockFile(filePath: mockedFilePath);
+        final mockedFileService = MockFileService(mockFileFactory: (filePath) => mockFile);
+
         int progressCount = 0;
 
         when(mockFile.path).thenReturn(mockedFilePath);
         when(mockFile.existsSync()).thenReturn(false);
-        when(mockedFileService.createFile(mockedFilePath)).thenReturn(mockFile);
 
         httpClientMocks
           ..response
@@ -140,13 +135,13 @@ void main() {
         final mockedUrl = 'https://${mockString()}';
         final mockedFilePath = mockString();
         final httpClientMocks = HttpClientMocks();
-        final mockedFileService = MockFileService();
-        final mockFile = MockFile();
+        final mockFile = MockFile(filePath: mockedFilePath);
+        final mockedFileService = MockFileService(mockFileFactory: (filePath) => mockFile);
+
         int finishedCount = 0;
 
         when(mockFile.path).thenReturn(mockedFilePath);
         when(mockFile.existsSync()).thenReturn(false);
-        when(mockedFileService.createFile(mockedFilePath)).thenReturn(mockFile);
 
         httpClientMocks
           ..response
@@ -176,13 +171,11 @@ void main() {
         final mockedUrl = 'https://${mockString()}';
         final mockedFilePath = mockString();
         final httpClientMocks = HttpClientMocks();
-        final mockedFileService = MockFileService();
-        final mockFile = MockFile();
+        final mockFile = MockFile(filePath: mockedFilePath);
+        final mockedFileService = MockFileService(mockFileFactory: (filePath) => mockFile);
 
         when(mockFile.path).thenReturn(mockedFilePath);
         when(mockFile.existsSync()).thenReturn(false);
-        when(mockedFileService.createFile(mockedFilePath)).thenReturn(mockFile);
-
         httpClientMocks
           ..response
               .setupStatusCode(HttpStatus.notModified)
@@ -206,13 +199,12 @@ void main() {
         final mockedUrl = 'https://${mockString()}';
         final mockedFilePath = mockString();
         final httpClientMocks = HttpClientMocks();
-        final mockedFileService = MockFileService();
-        final mockFile = MockFile();
+        final mockFile = MockFile(filePath: mockedFilePath);
+        final mockedFileService = MockFileService(mockFileFactory: (filePath) => mockFile);
         final mockedStatusCode = HttpStatus.internalServerError;
 
         when(mockFile.path).thenReturn(mockedFilePath);
         when(mockFile.existsSync()).thenReturn(false);
-        when(mockedFileService.createFile(mockedFilePath)).thenReturn(mockFile);
 
         httpClientMocks
           ..response
@@ -238,8 +230,8 @@ void main() {
         final mockedUrl = 'https://${mockString()}';
         final mockedFilePath = mockString();
         final httpClientMocks = HttpClientMocks();
-        final mockedFileService = MockFileService();
-        final mockFile = MockFile();
+        final mockFile = MockFile(filePath: mockedFilePath);
+        final mockedFileService = MockFileService(mockFileFactory: (filePath) => mockFile);
         final mockedStatusCode = HttpStatus.ok;
         int deleteCount = 0;
 
@@ -248,7 +240,6 @@ void main() {
         when(mockFile.deleteSync()).thenAnswer((_) {
           deleteCount += 1;
         });
-        when(mockedFileService.createFile(mockedFilePath)).thenReturn(mockFile);
 
         httpClientMocks
           ..response

@@ -9,12 +9,13 @@ import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/services/logger_service.dart';
 
 import '../config.dart';
+import '../mocks/mock_file_service.dart';
 
 class MockAssetBundle extends Mock implements AssetBundle {}
 
-class MockFile extends Mock implements File {}
-
 class MockLoggerService extends Mock implements LoggerService {}
+
+File _fileFactory(String filePath) => MockFile(filePath: filePath);
 
 void main() {
   configureEnvironment();
@@ -36,8 +37,8 @@ void main() {
         when(mockAssetBundle.loadString(argThat(equals(mockFilePath))))
             .thenAnswer((_) async => Future.value(jsonEncode(mockJson)));
 
-        final service =
-            FileService(MockLoggerService(), appAssetBundle: mockAssetBundle);
+        final service = FileService(_fileFactory, MockLoggerService(),
+            appAssetBundle: mockAssetBundle);
         final json = await service.loadJsonFromFile(mockFilePath);
 
         expect(json, isNotNull);
@@ -68,8 +69,8 @@ void main() {
         when(mockAssetBundle.loadString(argThat(equals(mockFilePath))))
             .thenAnswer((_) async => Future.value(jsonEncode(mockJsonList)));
 
-        final service =
-            FileService(MockLoggerService(), appAssetBundle: mockAssetBundle);
+        final service = FileService(_fileFactory, MockLoggerService(),
+            appAssetBundle: mockAssetBundle);
         final json = await service.loadJsonFromFile(mockFilePath);
 
         expect(json, isNotNull);
@@ -85,8 +86,8 @@ void main() {
             .thenAnswer(
                 (_) async => Future.value('too many chickens in the road'));
 
-        final service =
-            FileService(MockLoggerService(), appAssetBundle: mockAssetBundle);
+        final service = FileService(_fileFactory, MockLoggerService(),
+            appAssetBundle: mockAssetBundle);
         final json = await service.loadJsonFromFile(mockFilePath);
 
         expect(json, isNotNull);
@@ -95,13 +96,13 @@ void main() {
       });
     });
 
-    group('createFile (integration)', () {
+    group('createFile', () {
       test('creates a File instance with the provided path', () {
         final mockedDirectory = mockString();
         final mockedFilePath = '$mockedDirectory/test.txt';
-        final service =
-            FileService(MockLoggerService(), appAssetBundle: MockAssetBundle());
-        final file = service.createFile(mockedFilePath);
+        final service = FileService(_fileFactory, MockLoggerService(),
+            appAssetBundle: MockAssetBundle());
+        final file = service.instance(mockedFilePath);
 
         expect(file, isNotNull);
         expect(file.path, equals(mockedFilePath));
@@ -119,8 +120,8 @@ void main() {
           deleteCount += 1;
         });
 
-        final service =
-            FileService(MockLoggerService(), appAssetBundle: MockAssetBundle());
+        final service = FileService(_fileFactory, MockLoggerService(),
+            appAssetBundle: MockAssetBundle());
         final file = service.deleteFileSync(mockFile);
 
         expect(deleteCount, equals(1));
@@ -137,8 +138,8 @@ void main() {
           deleteCount += 1;
         });
 
-        final service =
-            FileService(MockLoggerService(), appAssetBundle: MockAssetBundle());
+        final service = FileService(_fileFactory, MockLoggerService(),
+            appAssetBundle: MockAssetBundle());
         final file = service.deleteFileSync(mockFile);
 
         expect(deleteCount, equals(0));

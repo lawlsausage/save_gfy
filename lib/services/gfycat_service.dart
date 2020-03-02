@@ -10,7 +10,7 @@ import 'package:save_gfy/values/download_info.dart';
 import 'package:save_gfy/values/download_type.dart';
 import 'package:save_gfy/values/source_metadata.dart';
 
-class GfycatService implements SourceService {
+class GfycatService extends SourceService {
   GfycatService(
     this.webViewController,
     this.configService,
@@ -42,13 +42,8 @@ class GfycatService implements SourceService {
   @override
   String get name => 'Gfycat';
 
-  @override
-  bool isValidSource(String url) {
-    final formattedUrl = url?.toLowerCase() ?? '';
-    final matchedHost = _hosts.firstWhere((host) => formattedUrl.contains(host),
-        orElse: () => null);
-    return matchedHost != null;
-  }
+  @override 
+  List<String> get hosts => _hosts;
 
   @override
   Future<String> formatUrl(String url) {

@@ -3,12 +3,10 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mock_data/mock_data.dart';
 import 'package:mockito/mockito.dart';
-import 'package:save_gfy/services/file_service.dart';
 import 'package:save_gfy/values/app_config.dart';
 
 import '../config.dart';
-
-class MockFileService extends Mock implements FileService {}
+import '../mocks/mock_file_service.dart';
 
 Map<String, dynamic> mockConfig() {
   return {
