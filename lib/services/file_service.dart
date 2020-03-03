@@ -48,7 +48,7 @@ class FileService {
   /// the [File]'s [FileSystemEntity.deleteSync] method.
   ///
   /// The [File] is returned.
-  File deleteFileSync(File file, {bool recursive}) {
+  File deleteFileSync(File file, {bool recursive = false}) {
     if (file?.existsSync() ?? false) {
       file.deleteSync(recursive: recursive);
     }
