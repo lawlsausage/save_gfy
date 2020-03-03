@@ -166,18 +166,22 @@ class RedditService extends SourceService {
   }
 
   Future _processFiles(List<String> filePaths) async {
-    final outputFilePath = filePaths[0].replaceAll(videoFileSuffix, '');
-    // TODO: delete the file (if exists) before attempting a merge
-    if ((filePaths?.length ?? 0) > 1) {
-      final returnCode = await videoService.mergeVideoAndAudio(
-          filePaths[0], filePaths[1], outputFilePath);
+    try {
+      final outputFilePath = filePaths[0].replaceAll(videoFileSuffix, '');
+      // TODO: delete the file (if exists) before attempting a merge
+      if ((filePaths?.length ?? 0) > 1) {
+        final returnCode = await videoService.mergeVideoAndAudio(
+            filePaths[0], filePaths[1], outputFilePath);
 
-      if (returnCode == 0) {
-        fileService.deleteFileSync(fileService.instance(filePaths[0]));
-        fileService.deleteFileSync(fileService.instance(filePaths[1]));
+        if (returnCode == 0) {
+          fileService.deleteFileSync(fileService.instance(filePaths[0]));
+          fileService.deleteFileSync(fileService.instance(filePaths[1]));
+        }
+      } else {
+        fileService.instance(filePaths[0]).renameSync(outputFilePath);
       }
-    } else {
-      fileService.instance(filePaths[0]).renameSync(outputFilePath);
+    } catch (err) {
+      loggerService.d('Issue processing files', err);
     }
   }
 
