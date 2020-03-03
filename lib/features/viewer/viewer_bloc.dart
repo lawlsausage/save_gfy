@@ -24,13 +24,13 @@ enum ViewerStatus {
   downloadingFile,
 }
 
-class ViewerBloc {
+class ViewerBloc extends ChangeNotifier {
   ViewerBloc({this.context}) {
-    configService = Provider.of<ConfigService>(context);
-    downloadService = Provider.of<DownloadService>(context);
-    fileService = Provider.of<FileService>(context);
-    videoService = Provider.of<VideoService>(context);
-    loggerService = Provider.of<LoggerService>(context);
+    configService = Provider.of<ConfigService>(context, listen: false);
+    downloadService = Provider.of<DownloadService>(context, listen: false);
+    fileService = Provider.of<FileService>(context, listen: false);
+    videoService = Provider.of<VideoService>(context, listen: false);
+    loggerService = Provider.of<LoggerService>(context, listen: false);
     _redditService = RedditService(
       configService,
       downloadService,
@@ -47,6 +47,7 @@ class ViewerBloc {
     initDeviceContext();
 
     _sourceServices[_redditService.name] = _redditService;
+    notifyListeners();
   }
 
   final BuildContext context;
@@ -90,6 +91,7 @@ class ViewerBloc {
   void initWebViewState() {
     Timer(Duration(milliseconds: 500), () {
       setVisible(true);
+      notifyListeners();
     });
   }
 
@@ -97,6 +99,7 @@ class ViewerBloc {
     Timer(Duration(milliseconds: 1000), () {
       MyApp.platform.invokeMethod('downloadsPath').then((path) {
         _downloadsPath = path;
+        notifyListeners();
         loggerService.d('Got downloadsPath: $downloadsPath');
       });
     });
@@ -127,14 +130,17 @@ class ViewerBloc {
 
   void updateStatus(ViewerStatus newStatus) {
     statusStreamController.sink.add(newStatus);
+    notifyListeners();
   }
 
   void updateCurrentUrl(String url) {
     currentUrlController.sink.add(url);
+    notifyListeners();
   }
 
   void setVisible(bool value) {
     isVisibleController.sink.add(value);
+    notifyListeners();
   }
 
   SourceService getSourceService({String url}) {
@@ -184,7 +190,9 @@ class ViewerBloc {
     updateStatus(ViewerStatus.loadingPage);
   }
 
+  @override
   void dispose() {
+    super.dispose();
     statusStreamController.close();
     isVisibleController.close();
     currentUrlController.close();

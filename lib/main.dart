@@ -7,6 +7,7 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:save_gfy/blocs/shared_url_bloc.dart';
+import 'package:save_gfy/features/viewer/viewer_bloc.dart';
 import 'package:save_gfy/pages/home.dart';
 import 'package:save_gfy/pages/paste_url.dart';
 import 'package:save_gfy/services/config_service.dart';
@@ -120,6 +121,7 @@ class MyApp extends StatelessWidget {
           create: (_) => loggerService,
           dispose: (_, LoggerService service) => service.close(),
         ),
+        ChangeNotifierProvider(create: (context) => ViewerBloc(context: context)),
       ],
       child: MaterialApp(
         title: appTitle,

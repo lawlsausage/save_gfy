@@ -26,11 +26,11 @@ class Viewer extends StatefulWidget {
 }
 
 class _ViewerState extends State<Viewer> {
-  LoggerService loggerService;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   ViewerBloc _viewerBloc;
+
+  LoggerService _loggerService;
 
   void _handleViewDownloads() async {
     try {
@@ -126,13 +126,13 @@ class _ViewerState extends State<Viewer> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _viewerBloc = ViewerBloc(context: context);
-
-    loggerService = Provider.of<LoggerService>(context);
+    _loggerService = Provider.of<LoggerService>(context, listen: false);
   }
 
   @override
   Widget build(BuildContext context) {
+    _viewerBloc = Provider.of<ViewerBloc>(context, listen: false);
+
     return Scaffold(
       key: _scaffoldKey,
       body: Column(
@@ -182,6 +182,6 @@ class _ViewerState extends State<Viewer> {
   void dispose() {
     super.dispose();
     _viewerBloc.dispose();
-    loggerService.d('Disposed viewer');
+    _loggerService.d('Disposed viewer');
   }
 }
